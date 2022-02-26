@@ -11,23 +11,23 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MyGdxGame extends ApplicationAdapter {
 	private SpriteBatch batch;
-	private Texture BallImg;
+	private Texture ballImg;
 	private OrthographicCamera camera;
-	private Circle Ball;
+	private Circle ball;
 	
 	@Override
 	public void create () {
 
-		BallImg = new Texture("Circ_Deg8.png");
+		ballImg = new Texture("Circ_Deg8.png");
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false,700,1200);
 		batch = new SpriteBatch();
 
-		Ball = new Circle();
-		Ball.x = 286; // <- 700/2 (taille de l'écran /2) - 128 /2 (taille de la balle /2)
-		Ball.y = 1050;
-		Ball.radius = 64;
+		ball = new Circle();
+		ball.x = 286; // <- 700/2 (taille de l'écran /2) - 128 /2 (taille de la balle /2)
+		ball.y = 1050;
+		ball.radius = 64;
 
 	}
 
@@ -38,23 +38,32 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch.setProjectionMatrix(camera.combined);
 
 		batch.begin();
-		batch.draw(BallImg, Ball.x, Ball.y,128,128);
+		batch.draw(ballImg, ball.x, ball.y,128,128);
 		batch.end();
 
-		float gyro = Gdx.input.getGyroscopeY();
-		if(gyro > 1){
-			Ball.x += 30;
+		float gyroscopeY = Gdx.input.getGyroscopeY();
+		if(gyroscopeY > 1){
+			ball.x += 30;
 		}
-		if(gyro < -1){
-			Ball.x -= 30;
+		if(gyroscopeY < -1){
+			ball.x -= 30;
+		}
+
+		float gyroscopeX = Gdx.input.getGyroscopeX();
+		if(gyroscopeX > 1){
+			ball.y += 30;
+		}
+		if(gyroscopeX < -1){
+			ball.y -= 30;
 		}
 
 
-		if(Ball.x < 0){
-			Ball.x = 0;
+
+		if(ball.x < 0){
+			ball.x = 0;
 		}
-		if(Ball.x > 700-128){
-			Ball.x = 700-128;
+		if(ball.x > 700-128){
+			ball.x = 700-128;
 		}
 
 	}
@@ -62,6 +71,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		batch.dispose();
-		BallImg.dispose();
+		ballImg.dispose();
 	}
 }
