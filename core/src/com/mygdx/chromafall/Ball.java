@@ -13,7 +13,6 @@ public class Ball {
     private Texture ballImg;
     private Vector3 position = new Vector3();
 
-
     public Ball(float Ox, float Oy, float r, Texture ballImg){
         ball = new Circle(Ox,Oy,r);
         this.ballImg = ballImg;
@@ -37,6 +36,7 @@ public class Ball {
 
     //This function will draw the ball
     public void draw(SpriteBatch batch){
+        //Since our texture is "square", we need to draw it from buttom left to top right, hence the x or y - radius
         batch.draw(ballImg,ball.x-ball.radius,ball.y-ball.radius, ball.radius*2,ball.radius*2);
     }
 }
