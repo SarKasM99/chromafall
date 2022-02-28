@@ -14,6 +14,7 @@ public class AndroidLauncher extends AndroidApplication {
 		config.useAccelerometer = true;
 		config.useGyroscope = false;
 		config.useCompass = false;
+		config.hideStatusBar = true;
 		initialize(new MyGdxGame(), config);
 	}
 }

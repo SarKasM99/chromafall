@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 
 public class Ball {
-    public Circle ball;    //Will contain the position in our coordinate system
+    private Circle ball;    //Will contain the position in our coordinate system
     private Texture ballImg;
     private Vector3 position = new Vector3();
 
