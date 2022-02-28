@@ -32,6 +32,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Vector3 pixelCoords = new Vector3();
 	private float acceleration = 0;
 
+	private boolean deathFlash = false;
+
 	private void spawnObstacle(Vector3 pixelCoords){
 		float width = pixelCoords.x;
 		//float height = pixelCoords.y;
@@ -70,7 +72,14 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		ScreenUtils.clear(Color.GRAY);
+		if(deathFlash){
+			ScreenUtils.clear(Color.RED);
+			deathFlash = false;
+		}
+		else {
+			ScreenUtils.clear(Color.GRAY);
+		}
+
 		//camera.update();							//Will need to be used if we start to utilise the camera (maybe at a later stage)
 
 		batch.setProjectionMatrix(camera.combined); //Will draw in worlds coordinate
@@ -98,6 +107,8 @@ public class MyGdxGame extends ApplicationAdapter {
 
 			if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
 				acceleration = 0.0f;
+				deathFlash = true;
+				obstacles = new Array<>();
 			}
 		}
 
