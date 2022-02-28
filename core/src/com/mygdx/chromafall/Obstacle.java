@@ -12,8 +12,8 @@ public class Obstacle {
     private Texture obsImg;
     private float init_speed = 0.1f;
 
-    public Obstacle(float x, float y, float witdh, float height, int pixWidth, int pixHeight) {
-        obstacle = new Rectangle(x,y,witdh,height);
+    public Obstacle(float x, float y, float width, float height, int pixWidth, int pixHeight) {
+        obstacle = new Rectangle(x,y,width,height);
 
         //Drawing the rectangle
         //In the future we should create a set of textures in order to optimize the game
