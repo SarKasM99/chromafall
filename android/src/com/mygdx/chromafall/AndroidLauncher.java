@@ -15,6 +15,7 @@ public class AndroidLauncher extends AndroidApplication {
 		config.useGyroscope = false;
 		config.useCompass = false;
 		config.hideStatusBar = true;
+		config.useImmersiveMode = true;
 		initialize(new MyGdxGame(), config);
 	}
 }
