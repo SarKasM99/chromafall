@@ -97,7 +97,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 
 			if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
-				throw new ValueException("perdu");
+				acceleration = 0.0f;
 			}
 		}
 
