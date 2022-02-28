@@ -89,16 +89,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		//Updating the Obstacles
 		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000) spawnObstacle(pixelCoords);
 
-		Iterator<Obstacle> iter = obstacles.iterator();
-		while(iter.hasNext()){
-			Obstacle obs = iter.next();
-			obs.update(acceleration);
+		for (Obstacle obstacle : obstacles)	 {
+			obstacle.update(acceleration);
 
-			if(obs.getY() > camera.viewportHeight) {
-				iter.remove();
-				obs.dispose();
+			if (obstacle.getY() > camera.viewportHeight) {
+				obstacle.dispose();
 			}
-			if(Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
+
+			if(Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
 				throw new ValueException("perdu");
 			}
 		}
