@@ -33,6 +33,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	private float acceleration = 0;
 
 	private boolean deathFlash = false;
+	private int deathFlashFrameCount = 10;
 
 	private void spawnObstacle(Vector3 pixelCoords){
 		float width = pixelCoords.x;
@@ -72,20 +73,23 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+		batch.begin();
+		batch.setProjectionMatrix(camera.combined); //Will draw in worlds coordinate
 		if(deathFlash){
 			ScreenUtils.clear(Color.RED);
-			deathFlash = false;
+			if (deathFlashFrameCount <= 0) {
+				deathFlash = false;
+			}
+			deathFlashFrameCount--;
 		}
 		else {
 			ScreenUtils.clear(Color.GRAY);
+			ball.draw(batch);
 		}
 
 		//camera.update();							//Will need to be used if we start to utilise the camera (maybe at a later stage)
 
-		batch.setProjectionMatrix(camera.combined); //Will draw in worlds coordinate
 
-		batch.begin();
-		ball.draw(batch);
 
 		for(Obstacle obs : obstacles){
 			obs.draw(batch);
@@ -108,6 +112,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
 				acceleration = 0.0f;
 				deathFlash = true;
+				deathFlashFrameCount = 10;
 				obstacles = new Array<>();
 			}
 		}
