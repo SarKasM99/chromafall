@@ -28,11 +28,9 @@ public class Ball {
         camera.unproject(position);
 
         ball.x += accelerometerX;
-        ball.y += accelerometerY;
 
         //Boundaries on the x axis and y axis
         ball.x = MathUtils.clamp(ball.x,ball.radius,camera.viewportWidth-ball.radius);
-        ball.y = MathUtils.clamp(ball.y,ball.radius,camera.viewportHeight-ball.radius);
     }
 
     //This function will draw the ball

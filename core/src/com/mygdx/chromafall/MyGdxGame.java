@@ -57,7 +57,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		ballImg = new Texture("Circ_Deg8.png");
 		pixelCoords.set(64,0,0);					//Translating the radius to coordinate worlds
 		camera.unproject(pixelCoords);
-		ball = new Ball(camera.viewportWidth/2,camera.viewportHeight/2,pixelCoords.x,ballImg);
+		ball = new Ball(camera.viewportWidth/2, camera.viewportHeight - 15, pixelCoords.x,ballImg);
 
 		//Creating Obstacles object
 		pixelCoords.set(128,0,0);
@@ -96,7 +96,7 @@ public class MyGdxGame extends ApplicationAdapter {
 				obstacle.dispose();
 			}
 
-			if(Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
+			if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
 				throw new ValueException("perdu");
 			}
 		}
