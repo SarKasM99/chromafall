@@ -4,17 +4,18 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
+
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 public class MyGdxGame extends ApplicationAdapter {
 	private SpriteBatch batch;
@@ -96,6 +97,9 @@ public class MyGdxGame extends ApplicationAdapter {
 			if(obs.getY() > camera.viewportHeight) {
 				iter.remove();
 				obs.dispose();
+			}
+			if(Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
+				throw new ValueException("perdu");
 			}
 		}
 

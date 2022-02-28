@@ -39,6 +39,10 @@ public class Obstacle {
         batch.draw(obsImg,obstacle.x,obstacle.y,obstacle.width,obstacle.height);
     }
 
+    public Rectangle getHitbox(){
+        return this.obstacle;
+    }
+
     public void dispose(){
         obsImg.dispose();
     }
