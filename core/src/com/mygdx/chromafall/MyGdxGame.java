@@ -102,14 +102,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		//Updating the Obstacles
 		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000) spawnObstacle(pixelCoords);
 
-		for (Obstacle obstacle : obstacles)	 {
+		Iterator<Obstacle> iter = obstacles.iterator();
+
+		while (iter.hasNext()) {
+			Obstacle obstacle = iter.next();
 			obstacle.update(acceleration);
 
 			if (obstacle.getY() > camera.viewportHeight) {
+				iter.remove();
 				obstacle.dispose();
 			}
 
-			if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
+			else if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
 				acceleration = 0.0f;
 				deathFlash = true;
 				deathFlashFrameCount = 10;
