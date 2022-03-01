@@ -4,17 +4,18 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
+
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 public class MyGdxGame extends ApplicationAdapter {
 	private SpriteBatch batch;
@@ -30,6 +31,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	private float vpWidth;
 	private Vector3 pixelCoords = new Vector3();
 	private float acceleration = 0;
+
+	private boolean deathFlash = false;
+	private int deathFlashFrameCount = 10;
 
 	private void spawnObstacle(Vector3 pixelCoords){
 		float width = pixelCoords.x;
@@ -56,7 +60,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		ballImg = new Texture("Circ_Deg8.png");
 		pixelCoords.set(64,0,0);					//Translating the radius to coordinate worlds
 		camera.unproject(pixelCoords);
-		ball = new Ball(camera.viewportWidth/2,camera.viewportHeight/2,pixelCoords.x,ballImg);
+		ball = new Ball(camera.viewportWidth/2, camera.viewportHeight - 15, pixelCoords.x,ballImg);
 
 		//Creating Obstacles object
 		pixelCoords.set(128,0,0);
@@ -69,13 +73,23 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		ScreenUtils.clear(Color.GRAY);
+		batch.begin();
+		batch.setProjectionMatrix(camera.combined); //Will draw in worlds coordinate
+		if(deathFlash){
+			ScreenUtils.clear(Color.RED);
+			if (deathFlashFrameCount <= 0) {
+				deathFlash = false;
+			}
+			deathFlashFrameCount--;
+		}
+		else {
+			ScreenUtils.clear(Color.GRAY);
+			ball.draw(batch);
+		}
+
 		//camera.update();							//Will need to be used if we start to utilise the camera (maybe at a later stage)
 
-		batch.setProjectionMatrix(camera.combined); //Will draw in worlds coordinate
 
-		batch.begin();
-		ball.draw(batch);
 
 		for(Obstacle obs : obstacles){
 			obs.draw(batch);
@@ -88,14 +102,18 @@ public class MyGdxGame extends ApplicationAdapter {
 		//Updating the Obstacles
 		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000) spawnObstacle(pixelCoords);
 
-		Iterator<Obstacle> iter = obstacles.iterator();
-		while(iter.hasNext()){
-			Obstacle obs = iter.next();
-			obs.update(acceleration);
+		for (Obstacle obstacle : obstacles)	 {
+			obstacle.update(acceleration);
 
-			if(obs.getY() > camera.viewportHeight) {
-				iter.remove();
-				obs.dispose();
+			if (obstacle.getY() > camera.viewportHeight) {
+				obstacle.dispose();
+			}
+
+			if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
+				acceleration = 0.0f;
+				deathFlash = true;
+				deathFlashFrameCount = 10;
+				obstacles = new Array<>();
 			}
 		}
 

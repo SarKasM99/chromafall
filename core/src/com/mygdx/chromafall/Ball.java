@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 
 public class Ball {
@@ -27,16 +28,18 @@ public class Ball {
         camera.unproject(position);
 
         ball.x += accelerometerX;
-        ball.y += accelerometerY;
 
         //Boundaries on the x axis and y axis
         ball.x = MathUtils.clamp(ball.x,ball.radius,camera.viewportWidth-ball.radius);
-        ball.y = MathUtils.clamp(ball.y,ball.radius,camera.viewportHeight-ball.radius);
     }
 
     //This function will draw the ball
     public void draw(SpriteBatch batch){
         //Since our texture is "square", we need to draw it from buttom left to top right, hence the x or y - radius
         batch.draw(ballImg,ball.x-ball.radius,ball.y-ball.radius, ball.radius*2,ball.radius*2);
+    }
+
+    public Circle getHitbox(){
+        return this.ball;
     }
 }
