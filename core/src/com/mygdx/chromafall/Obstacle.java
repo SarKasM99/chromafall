@@ -24,6 +24,7 @@ public class Obstacle {
         pixmap.fill();
 
         obsImg = new Texture(pixmap);
+        pixmap.dispose();
     }
 
     public void update(float acceleration){
