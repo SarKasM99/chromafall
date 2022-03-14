@@ -1,11 +1,15 @@
 package com.mygdx.chromafall;
 
-import com.badlogic.gdx.ApplicationAdapter;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
@@ -13,12 +17,16 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+//import com.badlogic.gdx.Game;
+
 import java.util.Iterator;
 
 public class MyGdxGame extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
-
 
 	private Ball ball;
 	private Texture ballImg;
@@ -28,8 +36,14 @@ public class MyGdxGame extends ApplicationAdapter {
 	private float vpHeight;
 	private float vpWidth;
 	private Vector3 pixelCoords = new Vector3();
-	private float acceleration = 0;
 
+	private FreeTypeFontGenerator generator;
+	private BitmapFont font;					//Allows us to draw text
+
+	private FitViewport gameViewport;
+	private ScreenViewport screenViewport;
+	private float acceleration = 0;
+	int score = 0;
 	private boolean deathFlash = false;
 	private int deathFlashFrameCount = 10;
 
@@ -39,11 +53,11 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		pixelCoords.set(width,0,0);
 		camera.project(pixelCoords);
-		int pixWidth = (int) pixelCoords.x;
+		int pixWidth = Math.round(pixelCoords.x);
 
 		pixelCoords.set(height,0,0);
 		camera.project(pixelCoords);
-		int pixHeight = (int) pixelCoords.x;
+		int pixHeight = Math.round(pixelCoords.x);
 
 		Obstacle obstacle = new Obstacle(x, y, width, height, pixWidth,pixHeight);
 		obstacles.add(obstacle);
@@ -59,11 +73,15 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		//Note: the x axis and the y axis do not have the same scale
 		camera.setToOrtho(false,100, 100*(vpHeight/vpWidth)); //World defined by 100x100 grid
+		//Note: we could technically just use the gameViewport to convert everything into our games coordinates
+		//But doing it with the camera will bring the same results since the coordinates are defined the same way
+		gameViewport = new FitViewport(100,100*(vpHeight/vpWidth),camera);
+		screenViewport = new ScreenViewport(camera);
 
 		//Creating Ball Object
 		ballImg = new Texture("Circ_Deg8.png");
-		float ballRadius = 8;																 //The radius is defined in world coordinates
-		ball = new Ball(camera.viewportWidth/2, camera.viewportHeight - 15, ballRadius,ballImg);
+		float ballRadius = 8;		//The radius is defined in world coordinates
+		ball = new Ball(camera.viewportWidth/2, camera.viewportHeight-15, ballRadius,ballImg);
 
 		//Creating Obstacles object
 		float obstacleWidth = 17.5f;
@@ -73,12 +91,46 @@ public class MyGdxGame extends ApplicationAdapter {
 		spawnObstacle(obstacleWidth,obstacleHeight);
 
 		batch = new SpriteBatch();
+
+		//Setting up the score text
+		float textSize = 4;
+		pixelCoords.set(textSize,0,0);
+		camera.project(pixelCoords);
+		int textPixelSize = Math.round(pixelCoords.x);
+
+		float borderSize = 0.5f;
+		pixelCoords.set(borderSize,0,0);
+		camera.project(pixelCoords);
+		int borderPixelSize = Math.round(pixelCoords.x);
+
+		//Font used: Copyright 2016 The Fredoka Project Authors (https://github.com/hafontia/Fredoka-One)
+		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.color = Color.WHITE;
+		parameter.size = textPixelSize;
+		//parameter.minFilter =  Texture.TextureFilter.Nearest;
+		parameter.magFilter = Texture.TextureFilter.Nearest;
+		parameter.borderColor = Color.BLACK;
+		parameter.borderWidth = borderPixelSize;
+
+		font = generator.generateFont(parameter);
+
+
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		//Updates the game viewport
+		gameViewport.update(width,height);
+		screenViewport.update(width, height);
 	}
 
 	@Override
 	public void render () {
 		batch.begin();
-		batch.setProjectionMatrix(camera.combined); //Will draw in worlds coordinate
+		//Drawing everything in world coordinates
+		gameViewport.apply();
+		batch.setProjectionMatrix(gameViewport.getCamera().combined); //Will draw in worlds coordinate
 
 		if(deathFlash){
 			ScreenUtils.clear(Color.RED);
@@ -87,20 +139,35 @@ public class MyGdxGame extends ApplicationAdapter {
 			}
 			deathFlashFrameCount--;
 		}
+
 		else {
 			ScreenUtils.clear(Color.GRAY);
 			ball.draw(batch);
 		}
 
 		//camera.update();							//Will need to be used if we start to utilise the camera (maybe at a later stage)
-
 		for(Obstacle obs : obstacles){
 			obs.draw(batch);
 		}
+
+
+		//Drawing everything in pixel coordinates (for the score)
+		screenViewport.apply();
+		batch.setProjectionMatrix(screenViewport.getCamera().combined);
+		TextureRegion fontRegion = font.getRegion();
+
+		font.draw(batch,"Score: " + score,
+				screenViewport.getWorldWidth()-fontRegion.getRegionWidth(),
+				screenViewport.getWorldHeight()-fontRegion.getRegionHeight());
+
 		batch.end();
+		gameViewport.apply();
 
 		//Updating the Ball
 		ball.update(camera);
+
+
+		score++;
 
 		//Updating the Obstacles
 		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000){
@@ -123,6 +190,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			else if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
 				acceleration = 0.0f;
 				deathFlash = true;
+				score = 0;
 				deathFlashFrameCount = 10;
 				obstacles = new Array<>();
 			}
@@ -135,6 +203,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		ballImg.dispose();
+		font.dispose();
+		generator.dispose();
 
 		for(Obstacle obs : obstacles){
 			obs.dispose();
