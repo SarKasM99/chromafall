@@ -157,8 +157,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		TextureRegion fontRegion = font.getRegion();
 
 		font.draw(batch,"Score: " + score,
-				screenViewport.getWorldWidth()-fontRegion.getRegionWidth(),
-				screenViewport.getWorldHeight()-fontRegion.getRegionHeight());
+				screenViewport.getScreenWidth()/2-fontRegion.getRegionWidth(),
+				fontRegion.getRegionHeight());
 
 		batch.end();
 		gameViewport.apply();
