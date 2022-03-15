@@ -74,11 +74,12 @@ public class MenuScreen implements Screen {
         });
 
         //Add buttons to table
-        mainTable.add(playButton);
         mainTable.row();
-        mainTable.add(optionsButton);
-        mainTable.row();
-        mainTable.add(exitButton);
+        mainTable.add(playButton).size(500,100).fill(true);
+        mainTable.row().size(1000);
+        mainTable.add(optionsButton).width(viewport.getScreenWidth()-viewport.getScreenWidth()/5).height(viewport.getScreenHeight()/5).fill();
+        mainTable.row().size(1000);
+        mainTable.add(exitButton).width(viewport.getScreenWidth()-viewport.getScreenWidth()/5).height(viewport.getScreenHeight()/5).fill();
 
         //Add table to stage
         stage.addActor(mainTable);
