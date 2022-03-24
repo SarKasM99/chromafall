@@ -1,5 +1,6 @@
 package com.mygdx.chromafall;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -42,26 +43,13 @@ public class GameScreen implements Screen {
 	int score = 0;
 	private boolean deathFlash = false;
 	private int deathFlashFrameCount = 10;
+	private Game game;
+	private Screen screen;
 
-	private void spawnObstacle(float width, float height){
-		float x = MathUtils.random(0,camera.viewportWidth-width);
-		float y = -width;	//Let it appear below the screen
-
-		pixelCoords.set(width,0,0);
-		camera.project(pixelCoords);
-		int pixWidth = Math.round(pixelCoords.x);
-
-		pixelCoords.set(height,0,0);
-		camera.project(pixelCoords);
-		int pixHeight = Math.round(pixelCoords.x);
-
-		Obstacle obstacle = new Obstacle(x, y, width, height, pixWidth,pixHeight);
-		obstacles.add(obstacle);
-		lastSpawnTime = TimeUtils.millis();
-	}
-
-	public void GameScreen(final MyGdxGame game) {
+	public GameScreen(Game gameObj, Screen screenObj) {
 		//Setting up the camera and the world coordinates
+        game = gameObj;
+        screen = screenObj;
 		camera = new OrthographicCamera();
 		vpWidth = Gdx.graphics.getWidth();
 		vpHeight = Gdx.graphics.getHeight();
@@ -112,12 +100,29 @@ public class GameScreen implements Screen {
 
 
 	}
+	private void spawnObstacle(float width, float height){
+		float x = MathUtils.random(0,camera.viewportWidth-width);
+		float y = -width;	//Let it appear below the screen
+
+		pixelCoords.set(width,0,0);
+		camera.project(pixelCoords);
+		int pixWidth = Math.round(pixelCoords.x);
+
+		pixelCoords.set(height,0,0);
+		camera.project(pixelCoords);
+		int pixHeight = Math.round(pixelCoords.x);
+
+		Obstacle obstacle = new Obstacle(x, y, width, height, pixWidth,pixHeight);
+		obstacles.add(obstacle);
+		lastSpawnTime = TimeUtils.millis();
+	}
+
 
 	@Override
 	public void resize(int width, int height) {
-		//Updates the game viewport
-		gameViewport.update(width,height);
+		gameViewport.update(width, height);
 		screenViewport.update(width, height);
+
 	}
 
 	/**
@@ -144,7 +149,13 @@ public class GameScreen implements Screen {
 
 	}
 
-	public void render() {
+	/**
+	 * Called when the screen should render itself.
+	 *
+	 * @param delta The time in seconds since the last render.
+	 */
+	@Override
+	public void render(float delta) {
 		batch.begin();
 		//Drawing everything in world coordinates
 		gameViewport.apply();
@@ -175,8 +186,8 @@ public class GameScreen implements Screen {
 		TextureRegion fontRegion = font.getRegion();
 
 		font.draw(batch,"Score: " + score,
-				screenViewport.getWorldWidth()-fontRegion.getRegionWidth(),
-				screenViewport.getWorldHeight()-fontRegion.getRegionHeight());
+				0,
+				0);
 
 		batch.end();
 		gameViewport.apply();
@@ -211,6 +222,8 @@ public class GameScreen implements Screen {
 				score = 0;
 				deathFlashFrameCount = 10;
 				obstacles = new Array<>();
+				this.dispose();
+				game.setScreen(screen);
 			}
 		}
 
@@ -220,16 +233,6 @@ public class GameScreen implements Screen {
 	@Override
 	public void show() {
 		// I don't know
-	}
-
-	/**
-	 * Called when the screen should render itself.
-	 *
-	 * @param delta The time in seconds since the last render.
-	 */
-	@Override
-	public void render(float delta) {
-
 	}
 
 	@Override

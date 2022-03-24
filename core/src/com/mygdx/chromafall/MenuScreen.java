@@ -24,9 +24,12 @@ public class MenuScreen implements Screen {
     private OrthographicCamera camera;
     private TextureAtlas atlas;
     protected Skin skin;
+    private Game game;
+    private Screen screen;
 
-    public MenuScreen()
-    {
+    public MenuScreen(Game gameArg) {
+        screen = this;
+        game = gameArg;
         atlas = new TextureAtlas("skin.atlas");
         skin = new Skin(Gdx.files.internal("skin.json"), atlas);
 
@@ -63,7 +66,7 @@ public class MenuScreen implements Screen {
         playButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ((Game)Gdx.app.getApplicationListener()).setScreen(new GameScreen());
+                game.setScreen(new GameScreen(game, screen));
             }
         });
         exitButton.addListener(new ClickListener(){
