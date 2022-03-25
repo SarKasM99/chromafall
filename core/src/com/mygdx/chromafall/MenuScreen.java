@@ -34,8 +34,11 @@ public class MenuScreen implements Screen {
         skin = new Skin(Gdx.files.internal("skin.json"), atlas);
 
         batch = new SpriteBatch();
-        camera = new OrthographicCamera();
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        camera = new OrthographicCamera(); //Camera not used
+
+        //Maybe use ScreenViewport for menu
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); //Defining FitViewport with pixel coordinates is not useful
         viewport.apply();
 
         camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
@@ -104,6 +107,7 @@ public class MenuScreen implements Screen {
         camera.update();
     }
 
+    //TODO: Pause resume for spawns of obstacles
     @Override
     public void pause() {
 

@@ -50,6 +50,7 @@ public class GameScreen implements Screen {
 		//Setting up the camera and the world coordinates
         game = gameObj;
         screen = screenObj;
+
 		camera = new OrthographicCamera();
 		vpWidth = Gdx.graphics.getWidth();
 		vpHeight = Gdx.graphics.getHeight();
@@ -92,7 +93,7 @@ public class GameScreen implements Screen {
 		parameter.color = Color.WHITE;
 		parameter.size = textPixelSize;
 		//parameter.minFilter =  Texture.TextureFilter.Nearest;
-		parameter.magFilter = Texture.TextureFilter.Nearest;
+		//parameter.magFilter = Texture.TextureFilter.Nearest;
 		parameter.borderColor = Color.BLACK;
 		parameter.borderWidth = borderPixelSize;
 
@@ -221,7 +222,7 @@ public class GameScreen implements Screen {
 				deathFlash = true;
 				score = 0;
 				deathFlashFrameCount = 10;
-				obstacles = new Array<>();
+				obstacles.clear();
 				this.dispose();
 				game.setScreen(screen);
 			}
