@@ -222,7 +222,7 @@ public class GameScreen implements Screen {
 				deathFlash = true;
 				score = 0;
 				deathFlashFrameCount = 10;
-				obstacles.clear();
+				obstacles = new Array<>();
 				this.dispose();
 				game.setScreen(screen);
 			}
