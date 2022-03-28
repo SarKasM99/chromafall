@@ -84,7 +84,7 @@ public class MenuScreen implements Screen {
         //Create buttons
         Button playButton = new ImageTextButton("Play",buttonstyle);
         Button optionsButton = new ImageTextButton("Options",buttonstyle);
-        Button exitButton = new ImageTextButton("Exit",buttonstyle);
+        Button quitButton = new ImageTextButton("Quit",buttonstyle);
 
         //logo
         Image logo = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
@@ -98,7 +98,7 @@ public class MenuScreen implements Screen {
             }
         });
 
-        exitButton.addListener(new ClickListener(){
+        quitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Gdx.app.exit();
@@ -117,7 +117,7 @@ public class MenuScreen implements Screen {
 //        mainTable.row();
 //        mainTable.add(optionsButton);
         mainTable.row();
-        mainTable.add(exitButton);
+        mainTable.add(quitButton);
 
         //Add table to stage
         stage.addActor(mainTable);
