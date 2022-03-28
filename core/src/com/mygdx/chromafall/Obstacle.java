@@ -34,7 +34,7 @@ public class Obstacle {
     public void prepare(float worldw){
         this.obstacle.width = worldw/MathUtils.random(2.5f,7.5f);
         this.obstacle.height = worldw/MathUtils.random(2.5f,10f);
-        this.obstacle.setX(MathUtils.random(-obstacle.width/2,worldw-obstacle.width/2));
+        this.obstacle.setX(MathUtils.random(0,worldw-obstacle.width));
         this.obstacle.setY(-obstacle.height);
     }
 
