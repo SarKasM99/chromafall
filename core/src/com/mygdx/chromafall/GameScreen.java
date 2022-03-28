@@ -179,7 +179,7 @@ public class GameScreen implements Screen {
 				}
 
 				//score
-				font.draw(batch,"score : " + score,w/100f,h-font.getScaleY()-h/100f);
+				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
 
 
 
