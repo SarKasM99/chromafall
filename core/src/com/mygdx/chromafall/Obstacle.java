@@ -4,22 +4,22 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+
+import java.util.Random;
 
 public class Obstacle {
     private Rectangle obstacle;
     private final Texture obsImg;
-    private float initSpeed = 0.1f;
+    private float initSpeed = 0.5f;
 
-    public Obstacle(float x, float y, float width, float height, int pixWidth, int pixHeight) {
-        obstacle = new Rectangle(x,y,width,height);
+    public Obstacle(){
+        obstacle = new Rectangle(-100,-100,0,0);
 
         //Drawing the rectangle
         //In the future we should create a set of textures in order to optimize the game
-        Pixmap pixmap = new Pixmap(
-                pixWidth,
-                pixHeight,
-                Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(1,15, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.RED);
         pixmap.fill();
 
@@ -29,6 +29,13 @@ public class Obstacle {
 
     public void update(float acceleration){
         obstacle.y += initSpeed + acceleration;
+    }
+
+    public void prepare(float worldw){
+        this.obstacle.width = worldw/MathUtils.random(2.5f,7.5f);
+        this.obstacle.height = worldw/MathUtils.random(2.5f,10f);
+        this.obstacle.setX(MathUtils.random(-obstacle.width/2,worldw-obstacle.width/2));
+        this.obstacle.setY(-obstacle.height);
     }
 
     public float getY(){
@@ -43,7 +50,4 @@ public class Obstacle {
         return this.obstacle;
     }
 
-    public void dispose(){
-        obsImg.dispose();
-    }
 }

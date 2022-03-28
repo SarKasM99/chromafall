@@ -1,5 +1,6 @@
 package com.mygdx.chromafall;
 
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
@@ -12,240 +13,208 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.awt.Font;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
 
 public class GameScreen implements Screen {
+
+	private final int w = Gdx.graphics.getWidth();
+	private final int h = Gdx.graphics.getHeight();
+	private Viewport gameView;
 	private SpriteBatch batch;
-	private OrthographicCamera camera;
-
 	private Ball ball;
-	private Texture ballImg;
-	private Array<Obstacle> obstacles;
-	private long lastSpawnTime;
-
-	private float vpHeight;
-	private float vpWidth;
-	private Vector3 pixelCoords = new Vector3();
-
-	private FreeTypeFontGenerator generator;
-	private BitmapFont font;					//Allows us to draw text
-
-	private FitViewport gameViewport;
-	private ScreenViewport screenViewport;
-	private float acceleration = 0;
-	int score = 0;
-	private boolean deathFlash = false;
-	private int deathFlashFrameCount = 10;
+	private Queue<Obstacle> usedObstacles;
 	private Game game;
-	private Screen screen;
+	private Screen menusScreen;
+	private FreeTypeFontGenerator generator;
+	private BitmapFont font;
+	private Queue<Obstacle> stockedObstacle;
+	private float time;
+	private float speed = 1;
+	private int incremencer = 1;
+	private boolean needtoPop = false;
+	private int score = 0;
+	private Button pauseButton;
+	private Stage stage;
 
-	public GameScreen(Game gameObj, Screen screenObj) {
-		//Setting up the camera and the world coordinates
-        game = gameObj;
-        screen = screenObj;
+	private enum State{
+		PAUSE,
+		RUN,
+		RESUME,
+		DEATH
+	}
 
-		camera = new OrthographicCamera();
-		vpWidth = Gdx.graphics.getWidth();
-		vpHeight = Gdx.graphics.getHeight();
+	private State state = State.RUN;
 
-		//Note: the x axis and the y axis do not have the same scale
-		camera.setToOrtho(false,100, 100*(vpHeight/vpWidth)); //World defined by 100x100 grid
-		//Note: we could technically just use the gameViewport to convert everything into our games coordinates
-		//But doing it with the camera will bring the same results since the coordinates are defined the same way
-		gameViewport = new FitViewport(100,100*(vpHeight/vpWidth),camera);
-		screenViewport = new ScreenViewport(camera);
+	public GameScreen(Game game, Screen menusScreen) {
+		//save old
+		this.game = game;
+		this.menusScreen = menusScreen;
 
-		//Creating Ball Object
-		ballImg = new Texture("Circ_Deg8.png");
-		float ballRadius = 8;		//The radius is defined in world coordinates
-		ball = new Ball(camera.viewportWidth/2, camera.viewportHeight-15, ballRadius,ballImg);
+		//init
+		stockedObstacle = new LinkedList<Obstacle>();
+		usedObstacles = new LinkedList<Obstacle>();
 
-		//Creating Obstacles object
-		float obstacleWidth = 17.5f;
-		float obstacleHeight = 17.5f;
+		//creat all the needed
+		this.gameView = new ExtendViewport(w,h);
+		this.ball = new Ball(w/2f,h-h/12f,w/16f);
+		this.batch = new SpriteBatch();
 
-		obstacles = new Array<>();
-		spawnObstacle(obstacleWidth,obstacleHeight);
-
-		batch = new SpriteBatch();
-
-		//Setting up the score text
-		float textSize = 4;
-		pixelCoords.set(textSize,0,0);
-		camera.project(pixelCoords);
-		int textPixelSize = Math.round(pixelCoords.x);
-
-		float borderSize = 0.5f;
-		pixelCoords.set(borderSize,0,0);
-		camera.project(pixelCoords);
-		int borderPixelSize = Math.round(pixelCoords.x);
-
-		//Font used: Copyright 2016 The Fredoka Project Authors (https://github.com/hafontia/Fredoka-One)
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.color = Color.WHITE;
-		parameter.size = textPixelSize;
-		//parameter.minFilter =  Texture.TextureFilter.Nearest;
-		//parameter.magFilter = Texture.TextureFilter.Nearest;
-		parameter.borderColor = Color.BLACK;
-		parameter.borderWidth = borderPixelSize;
-
+		parameter.size = w/20;
 		font = generator.generateFont(parameter);
 
+		for (int i = 0; i < 30; i++) {
+			stockedObstacle.add(new Obstacle());
+		}
+		Obstacle temp = stockedObstacle.remove();
+		temp.prepare(w);
+		usedObstacles.add(temp);
+
+		//bouton pause
+		TextureRegionDrawable pauseb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PauseButton.png"))));
+		TextureRegionDrawable playb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PlayButton.png"))));
+
+		pauseButton = new ImageButton(pauseb,pauseb,playb);
+		float pauseButtonSize = w/12f;
+		pauseButton.setSize(pauseButtonSize,pauseButtonSize);
+		pauseButton.setPosition(w-pauseButtonSize,h-pauseButtonSize);
+
+		pauseButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				System.out.println(pauseButton.isChecked());
+				if(pauseButton.isChecked()){
+					state = State.PAUSE;
+				}
+				else{
+					state = State.RUN;
+				}
+			}
+		});
+
+
+		stage = new Stage(gameView);
+		stage.addActor(pauseButton);
+		Gdx.input.setInputProcessor(stage);
 
 	}
-	private void spawnObstacle(float width, float height){
-		float x = MathUtils.random(0,camera.viewportWidth-width);
-		float y = -width;	//Let it appear below the screen
 
-		pixelCoords.set(width,0,0);
-		camera.project(pixelCoords);
-		int pixWidth = Math.round(pixelCoords.x);
-
-		pixelCoords.set(height,0,0);
-		camera.project(pixelCoords);
-		int pixHeight = Math.round(pixelCoords.x);
-
-		Obstacle obstacle = new Obstacle(x, y, width, height, pixWidth,pixHeight);
-		obstacles.add(obstacle);
-		lastSpawnTime = TimeUtils.millis();
+	@Override
+	public void show() {
 	}
 
+	@Override
+	public void render(float delta) {
+
+		gameView.apply();
+		ScreenUtils.clear(.102f,.102f,.102f, 1);
+
+
+		switch (state){
+			case RUN:
+				time += delta;
+				score += delta*100;
+
+				//init
+				batch.begin();
+
+
+				//ball
+				ball.draw(batch);
+				ball.update(gameView);
+
+				//obstacle
+				if(time > 5/speed){
+
+					Obstacle temp = stockedObstacle.remove();
+					temp.prepare(w);
+					usedObstacles.add(temp);
+				}
+				for (Obstacle obs: usedObstacles) {
+					obs.draw(batch);
+					obs.update(speed);
+					if(obs.getY() > h){
+						needtoPop = true;
+					}
+
+					if(Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
+						game.setScreen(this.menusScreen);
+					}
+				}
+
+				if(needtoPop){
+					needtoPop = false;
+					stockedObstacle.add(usedObstacles.remove());
+				}
+
+				//score
+				font.draw(batch,"score : " + score,w/100f,h-font.getScaleY()-h/100f);
+
+				batch.end();
+
+
+				//increment
+				if(time > 5/speed) {
+					incremencer++;
+					speed = MathUtils.log(2, incremencer);
+					time = 0;
+				}
+		}
+
+		stage.getViewport().apply();
+		stage.act();
+		stage.draw();
+
+	}
 
 	@Override
 	public void resize(int width, int height) {
-		gameViewport.update(width, height);
-		screenViewport.update(width, height);
-
+		gameView.update(width,height,true);
 	}
 
-	/**
-	 * @see ApplicationListener#pause()
-	 */
 	@Override
 	public void pause() {
 
 	}
 
-	/**
-	 * @see ApplicationListener#resume()
-	 */
 	@Override
 	public void resume() {
 
 	}
 
-	/**
-	 * Called when this screen is no longer the current screen for a {@link Game}.
-	 */
 	@Override
 	public void hide() {
 
 	}
 
-	/**
-	 * Called when the screen should render itself.
-	 *
-	 * @param delta The time in seconds since the last render.
-	 */
 	@Override
-	public void render(float delta) {
-		batch.begin();
-		//Drawing everything in world coordinates
-		gameViewport.apply();
-		batch.setProjectionMatrix(gameViewport.getCamera().combined); //Will draw in worlds coordinate
-
-		if(deathFlash){
-			ScreenUtils.clear(Color.RED);
-			if (deathFlashFrameCount <= 0) {
-				deathFlash = false;
-			}
-			deathFlashFrameCount--;
-		}
-
-		else {
-			ScreenUtils.clear(Color.GRAY);
-			ball.draw(batch);
-		}
-
-		//camera.update();							//Will need to be used if we start to utilise the camera (maybe at a later stage)
-		for(Obstacle obs : obstacles){
-			obs.draw(batch);
-		}
-
-
-		//Drawing everything in pixel coordinates (for the score)
-		screenViewport.apply();
-		batch.setProjectionMatrix(screenViewport.getCamera().combined);
-		TextureRegion fontRegion = font.getRegion();
-
-		font.draw(batch,"Score: " + score,
-				0,
-				0);
-
-		batch.end();
-		gameViewport.apply();
-
-		//Updating the Ball
-		ball.update(camera);
-
-
-		score++;
-
-		//Updating the Obstacles
-		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000){
-			float obstacleWidth = 17.5f;
-			float obstacleHeight = 17.5f;
-			spawnObstacle(obstacleWidth,obstacleHeight);
-		}
-
-		Iterator<Obstacle> iter = obstacles.iterator();
-
-		while (iter.hasNext()) {
-			Obstacle obstacle = iter.next();
-			obstacle.update(acceleration);
-
-			if (obstacle.getY() > camera.viewportHeight) {
-				iter.remove();
-				obstacle.dispose();
-			}
-
-			else if (Intersector.overlaps(ball.getHitbox(), obstacle.getHitbox())){
-				acceleration = 0.0f;
-				deathFlash = true;
-				score = 0;
-				deathFlashFrameCount = 10;
-				obstacles = new Array<>();
-				this.dispose();
-				game.setScreen(screen);
-			}
-		}
-
-		acceleration += 0.001;
-	}
-
-	@Override
-	public void show() {
-		// I don't know
-	}
-
-	@Override
-	public void dispose () {
+	public void dispose() {
 		batch.dispose();
-		ballImg.dispose();
-		font.dispose();
-		generator.dispose();
-
-		for(Obstacle obs : obstacles){
-			obs.dispose();
-		}
 	}
 }
-
