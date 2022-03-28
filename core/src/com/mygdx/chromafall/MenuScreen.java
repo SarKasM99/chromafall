@@ -17,13 +17,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -57,10 +62,29 @@ public class MenuScreen implements Screen {
         //Set alignment of contents in the table.
         mainTable.top();
 
+        //Creat font
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        param.size = 70;
+        param.color = Color.WHITE;
+        //param.borderWidth = 50;
+
+
+        //button case
+        TextureRegionDrawable button = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png"))));
+        ImageTextButton.ImageTextButtonStyle buttonstyle = new ImageTextButton.ImageTextButtonStyle();
+        buttonstyle.font = gen.generateFont(param);
+        buttonstyle.up = button;
+
+
+
         //Create buttons
-        ImageButton playButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PlayButton.png")))));
-        ImageButton optionsButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("MenuButton.png")))));
-        ImageButton exitButton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ExitButton.png")))));
+        Button playButton = new ImageTextButton("Play",buttonstyle);
+        Button optionsButton = new ImageTextButton("Options",buttonstyle);
+        Button exitButton = new ImageTextButton("Exit",buttonstyle);
+
+        //logo
+        Image logo = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
 
         //Add listeners to buttons
         playButton.addListener(new ClickListener(){
@@ -78,28 +102,15 @@ public class MenuScreen implements Screen {
             }
         });
 
-        //create title and what is needed for it
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ThaleahFat.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        param.size = 100;
-        param.color = Color.SCARLET;
-        param.shadowOffsetX = 5;
-        param.shadowOffsetY = 5;
-        param.shadowColor = Color.BLACK;
-
-        Label.LabelStyle labelstyle = new Label.LabelStyle();
-        labelstyle.font = gen.generateFont(param);
 
         //Add buttons to table
-        mainTable.add(new Label("Chroma",labelstyle));
+        mainTable.add(logo).size(300);
         mainTable.row();
-        mainTable.add(new Label("Fall",labelstyle));
+        mainTable.add(playButton).size(400,100);
         mainTable.row();
-        mainTable.add(playButton).size(150);
+        mainTable.add(optionsButton).size(400,100).padTop(50);
         mainTable.row();
-        mainTable.add(optionsButton).size(150);
-        mainTable.row();
-        mainTable.add(exitButton).size(150);
+        mainTable.add(exitButton).size(400,100).padTop(50);
 
         //Add table to stage
         stage.addActor(mainTable);
@@ -108,7 +119,7 @@ public class MenuScreen implements Screen {
     @Override
     public void render(float delta) {
         stage.getViewport().apply();
-        Gdx.gl.glClearColor(.1f, .12f, .16f, 1);
+        Gdx.gl.glClearColor(.102f,.102f,.102f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stage.act();
