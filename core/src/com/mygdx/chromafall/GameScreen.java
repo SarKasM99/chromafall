@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
@@ -22,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -133,17 +135,20 @@ public class GameScreen implements Screen {
 	public void render(float delta) {
 
 		gameView.apply();
+		// Hex color code: #1a1a1a
 		ScreenUtils.clear(.102f,.102f,.102f, 1);
 
-
+		batch.begin();
 		switch (state){
+			case PAUSE:
+			    GlyphLayout layout = new GlyphLayout();
+			    String pauseText = "Game is paused.\n\nTap on the button in the upper right corner to resume the game.";
+			    layout.setText(font, pauseText, Color.WHITE, w, Align.center, true);
+				font.draw(batch,layout, 0,h/2f + layout.height/2);
+				break;
 			case RUN:
 				time += delta;
 				score += delta*100;
-
-				//init
-				batch.begin();
-
 
 				//ball
 				ball.draw(batch);
@@ -176,7 +181,6 @@ public class GameScreen implements Screen {
 				//score
 				font.draw(batch,"score : " + score,w/100f,h-font.getScaleY()-h/100f);
 
-				batch.end();
 
 
 				//increment
@@ -187,6 +191,7 @@ public class GameScreen implements Screen {
 				}
 		}
 
+		batch.end();
 		stage.getViewport().apply();
 		stage.act();
 		stage.draw();
