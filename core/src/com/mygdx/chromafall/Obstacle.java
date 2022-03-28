@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class Obstacle {
     private Rectangle obstacle;
-    private Texture obsImg;
+    private final Texture obsImg;
     private float initSpeed = 0.1f;
 
     public Obstacle(float x, float y, float width, float height, int pixWidth, int pixHeight) {
