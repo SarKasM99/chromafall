@@ -51,7 +51,7 @@ public class MenuScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         //Create Table
-        Table mainTable = new Table();
+        final Table mainTable = new Table();
         //Set table to fill stage
         mainTable.setFillParent(true);
         //Set alignment of contents in the table.
@@ -66,6 +66,7 @@ public class MenuScreen implements Screen {
         playButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                mainTable.reset();
                 game.setScreen(new GameScreen(game, screen));
             }
         });
@@ -77,7 +78,7 @@ public class MenuScreen implements Screen {
             }
         });
 
-        //creat title and what is needed for it
+        //create title and what is needed for it
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/ThaleahFat.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
         param.size = 100;
