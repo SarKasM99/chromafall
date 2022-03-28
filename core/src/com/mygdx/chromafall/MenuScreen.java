@@ -29,11 +29,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MenuScreen implements Screen {
 
+    private final int w = Gdx.graphics.getWidth();
+    private final int h = Gdx.graphics.getHeight();
     private SpriteBatch batch;
     protected Stage stage;
     private Game game;
@@ -45,7 +48,7 @@ public class MenuScreen implements Screen {
 
         batch = new SpriteBatch();
 
-        stage = new Stage(new FitViewport(400,800), batch);
+        stage = new Stage(new ExtendViewport(w, h));
     }
 
 
@@ -104,13 +107,17 @@ public class MenuScreen implements Screen {
 
 
         //Add buttons to table
-        mainTable.add(logo).size(300);
+        mainTable.defaults().width(0.85f* w);
+        mainTable.defaults().height(0.10f* h);
+        mainTable.defaults().pad(0.01f* h);
+        mainTable.defaults().align(Align.center);
+        mainTable.add(logo).size(0.45f*h).padBottom(0);
         mainTable.row();
-        mainTable.add(playButton).size(400,100);
+        mainTable.add(playButton);
         mainTable.row();
-        mainTable.add(optionsButton).size(400,100).padTop(50);
+        mainTable.add(optionsButton);
         mainTable.row();
-        mainTable.add(exitButton).size(400,100).padTop(50);
+        mainTable.add(exitButton);
 
         //Add table to stage
         stage.addActor(mainTable);
@@ -121,7 +128,6 @@ public class MenuScreen implements Screen {
         stage.getViewport().apply();
         Gdx.gl.glClearColor(.102f,.102f,.102f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         stage.act();
         stage.draw();
     }
