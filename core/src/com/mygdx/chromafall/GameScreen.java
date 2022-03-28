@@ -164,7 +164,7 @@ public class GameScreen implements Screen {
 					}
 
 					if(Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
-						game.setScreen(this.menusScreen);
+						game.setScreen(new DeathScreen(score, menusScreen, game));
 					}
 				}
 
