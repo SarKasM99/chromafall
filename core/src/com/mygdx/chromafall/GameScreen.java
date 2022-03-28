@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.Iterator;
+import java.util.Random;
 
 public class GameScreen implements Screen {
 	private SpriteBatch batch;
@@ -200,9 +201,10 @@ public class GameScreen implements Screen {
 		score++;
 
 		//Updating the Obstacles
-		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000){
-			float obstacleWidth = 17.5f;
-			float obstacleHeight = 17.5f;
+		if(TimeUtils.timeSinceMillis(lastSpawnTime) > 2000/acceleration){
+			Random rand = new Random();
+			float obstacleWidth = 17.5f + rand.nextInt(20);
+			float obstacleHeight = 17.5f + rand.nextInt(20);
 			spawnObstacle(obstacleWidth,obstacleHeight);
 		}
 
