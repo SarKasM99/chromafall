@@ -114,8 +114,8 @@ public class MenuScreen implements Screen {
         mainTable.add(logo).size(0.45f*h).padBottom(0);
         mainTable.row();
         mainTable.add(playButton);
-        mainTable.row();
-        mainTable.add(optionsButton);
+//        mainTable.row();
+//        mainTable.add(optionsButton);
         mainTable.row();
         mainTable.add(exitButton);
 
