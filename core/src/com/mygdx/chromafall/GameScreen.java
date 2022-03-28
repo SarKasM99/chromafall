@@ -55,7 +55,7 @@ public class GameScreen implements Screen {
 	private BitmapFont font;
 	private Queue<Obstacle> stockedObstacle;
 	private float time;
-	private float speed = 1;
+	private float speed = 2;
 	private int incremencer = 1;
 	private boolean needtoPop = false;
 	private int score = 0;
@@ -186,7 +186,7 @@ public class GameScreen implements Screen {
 				//increment
 				if(time > 5/speed) {
 					incremencer++;
-					speed = MathUtils.log(2, incremencer);
+					speed = MathUtils.log(2, incremencer)*2;
 					time = 0;
 				}
 		}
