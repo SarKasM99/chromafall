@@ -131,6 +131,12 @@ public class GameScreen implements Screen {
 	public void show() {
 	}
 
+	public double colorDifference(Color x, Color y) {
+		// The square root of the Euclidean distance is computationally expensive
+		// and isn't that important for comparison so we remove it.
+		return Math.pow(y.r-x.r, 2) + Math.pow(y.g-x.g, 2) + Math.pow(y.b-x.b, 2);
+	}
+
 	@Override
 	public void render(float delta) {
 
@@ -150,10 +156,6 @@ public class GameScreen implements Screen {
 				time += delta;
 				score += delta*100;
 
-				//ball
-				ball.draw(batch);
-				ball.update(gameView);
-
 				//obstacle
 				if(time > 5/speed){
 
@@ -167,8 +169,10 @@ public class GameScreen implements Screen {
 					if(obs.getY() > h){
 						needtoPop = true;
 					}
-
-					if(Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
+					double colorDiff = colorDifference(ball.getColor(), obs.getColor());
+					System.out.println("Color diff = " + colorDiff);
+					if (colorDiff > 0.3 &&
+							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
 						game.setScreen(new DeathScreen(score, menusScreen, game));
 					}
 				}
@@ -177,6 +181,11 @@ public class GameScreen implements Screen {
 					needtoPop = false;
 					stockedObstacle.add(usedObstacles.remove());
 				}
+
+				// ball must be drawn after the obstacles so that it can pass
+				// *over* them.
+				ball.draw(batch);
+				ball.update(gameView);
 
 				//score
 				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);

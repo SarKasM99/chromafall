@@ -1,6 +1,7 @@
 package com.mygdx.chromafall;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,10 +16,16 @@ public class Ball {
     private Circle ball;    //Will contain the position in our coordinate system
     private Texture ballImg;
     private Vector3 position = new Vector3();
+    private Color color;
 
     public Ball(float Ox, float Oy, float radius){
         ball = new Circle(Ox,Oy,radius);
         this.ballImg = new Texture("Circ_Deg8.png");
+        color = new Color(0x2467DAFF);
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     //This function will update the balls position

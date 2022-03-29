@@ -13,6 +13,7 @@ public class Obstacle {
     private Rectangle obstacle;
     private final Texture obsImg;
     private float initSpeed = 0.5f;
+    private Color color;
 
     public Obstacle(){
         obstacle = new Rectangle(-100,-100,0,0);
@@ -20,11 +21,25 @@ public class Obstacle {
         //Drawing the rectangle
         //In the future we should create a set of textures in order to optimize the game
         Pixmap pixmap = new Pixmap(1,15, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.RED);
+        Color bgColor = new Color(.102f,.102f,.102f, 1);
+        // We want to avoid generating a color that is darker or too close to the background.
+        float rgbMarginFromBg = 0.20f;
+        Random random = new Random();
+        float[] means = new float[]{0.60f, 0.75f, 0.95f};
+        color = new Color(
+                (float)random.nextGaussian()+means[random.nextInt(means.length)],
+                (float)random.nextGaussian()+means[random.nextInt(means.length)],
+                (float)random.nextGaussian()+means[random.nextInt(means.length)],
+                1);
+        pixmap.setColor(color);
         pixmap.fill();
 
         obsImg = new Texture(pixmap);
         pixmap.dispose();
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public void update(float acceleration){
