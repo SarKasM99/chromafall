@@ -3,6 +3,7 @@ package com.mygdx.chromafall;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
@@ -20,12 +21,22 @@ public class Ball {
 
     public Ball(float Ox, float Oy, float radius){
         ball = new Circle(Ox,Oy,radius);
-        this.ballImg = new Texture("Circ_Deg8.png");
         color = new Color(0x2467DAFF);
+        this.setColor(color);
     }
 
     public Color getColor() {
         return color;
+    }
+
+    public void setColor(Color newColor) {
+        color = newColor;
+        int intRadius = MathUtils.round(ball.radius);
+        Pixmap pixmap = new Pixmap(intRadius*2, intRadius*2, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fillCircle(intRadius, intRadius, intRadius);
+        ballImg = new Texture(pixmap);
+        pixmap.dispose();
     }
 
     //This function will update the balls position

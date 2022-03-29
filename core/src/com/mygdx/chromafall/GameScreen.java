@@ -34,6 +34,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.awt.Font;
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,6 +62,8 @@ public class GameScreen implements Screen {
 	private int score = 0;
 	private Button pauseButton;
 	private Stage stage;
+	private Orb orb;
+	private boolean isOrbShown = false;
 
 	private enum State{
 		PAUSE,
@@ -90,6 +93,8 @@ public class GameScreen implements Screen {
 		parameter.color = Color.WHITE;
 		parameter.size = w/20;
 		font = generator.generateFont(parameter);
+
+		orb = new Orb();
 
 		for (int i = 0; i < 30; i++) {
 			stockedObstacle.add(new Obstacle());
@@ -156,6 +161,23 @@ public class GameScreen implements Screen {
 				time += delta;
 				score += delta*100;
 
+
+				float randomOrbNumber = MathUtils.random(0, 1234);
+				if (!isOrbShown && 1 <= randomOrbNumber && randomOrbNumber <= 1221) {
+					isOrbShown = true;
+				}
+				if (isOrbShown) {
+					orb.draw(batch);
+					orb.update(speed);
+					if (Intersector.overlaps(ball.getHitbox(), orb.getHitbox())) {
+						ball.setColor(orb.getColor());
+					}
+					if (orb.circle.y > h) {
+						isOrbShown = false;
+						orb = new Orb();
+					}
+				}
+
 				//obstacle
 				if(time > 5/speed){
 
@@ -170,7 +192,6 @@ public class GameScreen implements Screen {
 						needtoPop = true;
 					}
 					double colorDiff = colorDifference(ball.getColor(), obs.getColor());
-					System.out.println("Color diff = " + colorDiff);
 					if (colorDiff > 0.3 &&
 							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
 						game.setScreen(new DeathScreen(score, menusScreen, game));
