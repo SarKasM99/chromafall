@@ -1,15 +1,19 @@
 package com.mygdx.chromafall;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 import java.util.Random;
 
 public class Obstacle {
+    private final float w = Gdx.graphics.getWidth();
     private Rectangle obstacle;
     private final Texture obsImg;
     private float initSpeed = 0.5f;
@@ -68,11 +72,14 @@ public class Obstacle {
         obstacle.y += initSpeed + acceleration;
     }
 
-    public void prepare(float worldw){
+    public void prepare(float worldw, Ball ball, float pathX) {
         this.obstacle.width = worldw/MathUtils.random(2.5f,7.5f);
         this.obstacle.height = worldw/MathUtils.random(2.5f,10f);
-        this.obstacle.setX(MathUtils.random(0,worldw-obstacle.width));
         this.obstacle.setY(-obstacle.height);
+        Rectangle pathRect = new Rectangle(pathX-0.02f*w, this.obstacle.getY(), 0.04f*w, 1);
+        do {
+            this.obstacle.setX(MathUtils.random(10, w));
+        } while (Intersector.overlaps(pathRect, this.obstacle));
     }
 
     public float getY(){

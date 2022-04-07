@@ -46,6 +46,7 @@ public class GameScreen implements Screen {
 
 	private final int w = Gdx.graphics.getWidth();
 	private final int h = Gdx.graphics.getHeight();
+	private final InvisiblePath invisPath;
 	private Viewport gameView;
 	private SpriteBatch batch;
 	private Ball ball;
@@ -95,12 +96,13 @@ public class GameScreen implements Screen {
 		font = generator.generateFont(parameter);
 
 		orb = new Orb();
+		invisPath = new InvisiblePath(3);
 
 		for (int i = 0; i < 30; i++) {
 			stockedObstacle.add(new Obstacle());
 		}
 		Obstacle temp = stockedObstacle.remove();
-		temp.prepare(w);
+		temp.prepare(w, this.ball, invisPath.evaluate(0));
 		usedObstacles.add(temp);
 
 		//bouton pause
@@ -129,6 +131,7 @@ public class GameScreen implements Screen {
 		stage = new Stage(gameView);
 		stage.addActor(pauseButton);
 		Gdx.input.setInputProcessor(stage);
+
 
 	}
 
@@ -182,7 +185,7 @@ public class GameScreen implements Screen {
 				if(time > 5/speed){
 
 					Obstacle temp = stockedObstacle.remove();
-					temp.prepare(w);
+					temp.prepare(w, ball, invisPath.evaluate(time));
 					usedObstacles.add(temp);
 				}
 				for (Obstacle obs: usedObstacles) {
@@ -194,7 +197,10 @@ public class GameScreen implements Screen {
 					double colorDiff = colorDifference(ball.getColor(), obs.getColor());
 					if (colorDiff > 0.3 &&
 							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
+						ball.draw(batch);
+						batch.end();
 						game.setScreen(new DeathScreen(score, menusScreen, game));
+						return;
 					}
 				}
 
