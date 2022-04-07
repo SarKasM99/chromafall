@@ -69,7 +69,7 @@ public class Orb {
     }
 
     public void update(float speed) {
-        circle.y += speed;
+        circle.y += 0.5f + speed;
     }
 
     public void draw(SpriteBatch batch) {
