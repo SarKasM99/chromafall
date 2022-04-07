@@ -164,10 +164,14 @@ public class GameScreen implements Screen {
 				time += delta;
 				score += delta*100;
 
+				System.out.println(invisPath.evaluate(score));
+				System.out.println("delta = " + delta);
 
-				float randomOrbNumber = MathUtils.random(0, 1234);
-				if (!isOrbShown && 1 <= randomOrbNumber && randomOrbNumber <= 1221) {
-					isOrbShown = true;
+				if (!isOrbShown) {
+					float randomOrbNumber = MathUtils.random(0, 1234);
+					if (1 <= randomOrbNumber && randomOrbNumber <= 1221) {
+						isOrbShown = true;
+					}
 				}
 				if (isOrbShown) {
 					orb.draw(batch);
