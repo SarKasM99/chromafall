@@ -76,9 +76,10 @@ public class Obstacle {
         this.obstacle.width = worldw/MathUtils.random(2.5f,7.5f);
         this.obstacle.height = worldw/MathUtils.random(2.5f,10f);
         this.obstacle.setY(-obstacle.height);
-        Rectangle pathRect = new Rectangle(pathX-0.02f*w, this.obstacle.getY(), 0.04f*w, 1);
+        Rectangle pathRect = new Rectangle(pathX-0.02f*w, this.obstacle.getY(), 0.04f*w, ball.ball.radius*2.2f);
         do {
             this.obstacle.setX(MathUtils.random(10, w));
+            System.out.println("Resetting the X...");
         } while (Intersector.overlaps(pathRect, this.obstacle));
     }
 
