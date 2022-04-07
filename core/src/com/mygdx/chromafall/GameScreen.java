@@ -179,7 +179,7 @@ public class GameScreen implements Screen {
 						isOrbShown = false;
 						orb = new Orb(invisPath.evaluate(score));
 					}
-//				}
+				}
 
 				//obstacle
 				if(time > 5/speed){
