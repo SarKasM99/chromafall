@@ -95,8 +95,8 @@ public class GameScreen implements Screen {
 		parameter.size = w/20;
 		font = generator.generateFont(parameter);
 
-		orb = new Orb();
-		invisPath = new InvisiblePath(3);
+		invisPath = new InvisiblePath(1);
+		orb = new Orb(invisPath.evaluate(0));
 
 		for (int i = 0; i < 30; i++) {
 			stockedObstacle.add(new Obstacle());
@@ -177,15 +177,15 @@ public class GameScreen implements Screen {
 					}
 					if (orb.circle.y > h) {
 						isOrbShown = false;
-						orb = new Orb();
+						orb = new Orb(invisPath.evaluate(score));
 					}
-				}
+//				}
 
 				//obstacle
 				if(time > 5/speed){
 
 					Obstacle temp = stockedObstacle.remove();
-					temp.prepare(w, ball, invisPath.evaluate(time));
+					temp.prepare(w, ball, invisPath.evaluate(score));
 					usedObstacles.add(temp);
 				}
 				for (Obstacle obs: usedObstacles) {

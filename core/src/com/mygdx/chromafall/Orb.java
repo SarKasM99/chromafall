@@ -18,7 +18,7 @@ public class Orb {
     private Color color;
     private Texture texture;
 
-    public Orb() {
+    public Orb(float x) {
         final Color[] colors = new Color[]{
                 Color.BLUE,
                 Color.BROWN,
@@ -48,9 +48,8 @@ public class Orb {
                 Color.WHITE,
                 Color.YELLOW
         };
-        float radius = w*0.045f;
-        int intRadius = MathUtils.round(radius);
-        float x = MathUtils.random(radius*2, w-radius*2);
+        float radius = w*0.035f;
+        int intRadius = MathUtils.ceil(radius)+1;
         float y = -radius*2;
         circle = new Circle(x, y, radius);
         Pixmap pixmap = new Pixmap(intRadius*2, intRadius*2, Pixmap.Format.RGBA8888);
