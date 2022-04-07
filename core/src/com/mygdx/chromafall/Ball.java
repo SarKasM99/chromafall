@@ -14,14 +14,16 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Ball {
-    private Circle ball;    //Will contain the position in our coordinate system
+    public Circle ball;    //Will contain the position in our coordinate system
+    private Circle hitbox;
     private Texture ballImg;
     private Vector3 position = new Vector3();
     private Color color;
 
     public Ball(float Ox, float Oy, float radius){
         ball = new Circle(Ox,Oy,radius);
-        color = new Color(0x2467DAFF);
+        hitbox = new Circle(Ox, Oy, radius*.85f);
+        color = Color.ROYAL;
         this.setColor(color);
     }
 
@@ -48,9 +50,11 @@ public class Ball {
         camera.unproject(position);
 
         ball.x += accelerometerX*10;
+        hitbox.x += accelerometerX*10;
 
         //Boundaries on the x axis and y axis
         ball.x = MathUtils.clamp(ball.x,ball.radius,camera.getWorldWidth()-ball.radius);
+        hitbox.x = MathUtils.clamp(hitbox.x,hitbox.radius,camera.getWorldWidth()-hitbox.radius);
     }
 
     //This function will draw the ball
@@ -60,6 +64,6 @@ public class Ball {
     }
 
     public Circle getHitbox(){
-        return this.ball;
+        return this.hitbox;
     }
 }
