@@ -15,7 +15,7 @@
         tools:ignore="UnusedAttribute">
         <activity
             android:name="com.mygdx.chromafall.AndroidLauncher"
-            android:screenOrientation="portrait"
+            android:screenOrientation="sensorPortrait"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
             android:exported="true"
             tools:ignore="LockedOrientationActivity">
