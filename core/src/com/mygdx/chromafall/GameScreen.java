@@ -139,12 +139,6 @@ public class GameScreen implements Screen {
 	public void show() {
 	}
 
-	public double colorDifference(Color x, Color y) {
-		// The square root of the Euclidean distance is computationally expensive
-		// and isn't that important for comparison so we remove it.
-		return Math.pow(y.r-x.r, 2) + Math.pow(y.g-x.g, 2) + Math.pow(y.b-x.b, 2);
-	}
-
 	@Override
 	public void render(float delta) {
 
@@ -198,8 +192,7 @@ public class GameScreen implements Screen {
 					if(obs.getY() > h){
 						needtoPop = true;
 					}
-					double colorDiff = colorDifference(ball.getColor(), obs.getColor());
-					if (colorDiff > 0.3 &&
+					if (ball.getColor() != obs.getColor() &&
 							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
 						ball.draw(batch);
 						batch.end();
