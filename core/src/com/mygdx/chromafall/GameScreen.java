@@ -56,8 +56,8 @@ public class GameScreen implements Screen {
 	private BitmapFont font;
 	private Queue<Obstacle> stockedObstacle;
 	private float time;
-	private float speed = 2;
-	private int incremencer = 1;
+	private float speed = 5;
+	private int incremencer = 10;
 	private boolean needtoPop = false;
 	private int score = 0;
 	private Button pauseButton;
