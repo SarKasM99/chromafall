@@ -17,9 +17,9 @@ public class InvisiblePath {
         waveLengths = new float[n];
         phaseDifferences = new float[n];
         for (int i = 0; i < n; i++) {
-            amplitudes[i] = MathUtils.random(0, w);
-            waveLengths[i] = MathUtils.random(1, 100);
-            phaseDifferences[i] = MathUtils.random(1, 100);
+            amplitudes[i] = MathUtils.random(0, 0.70f*w);
+            waveLengths[i] = MathUtils.random(1, 25);
+            phaseDifferences[i] = MathUtils.random(0, 20);
         }
     }
 
@@ -28,6 +28,7 @@ public class InvisiblePath {
         for (int i = 0; i < nTerms; i++) {
             evalSum += amplitudes[i] * (float) Math.sin(2* Math.PI * x / waveLengths[i] + phaseDifferences[i]);
         }
-        return evalSum;
+        assert evalSum < w;
+        return evalSum + (float)w/2;
     }
 }
