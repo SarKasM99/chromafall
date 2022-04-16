@@ -27,10 +27,10 @@ public class DeathScreen implements Screen {
     private final Table table = new Table();
     private final BitmapFont font;
 
-    private final Game gameApp;
+    private final MyGdxGame gameApp;
     private final Screen menuScreen;
 
-    public DeathScreen(int obtainedScore, Screen menuScreen, Game applicationListener) {
+    public DeathScreen(int obtainedScore, Screen menuScreen, MyGdxGame applicationListener) {
         score = obtainedScore;
         stage = new Stage(new ExtendViewport(w, h));
         Gdx.input.setInputProcessor(stage);
@@ -137,7 +137,6 @@ public class DeathScreen implements Screen {
         stage.act();
         stage.draw();
     }
-
 
     /**
      * @param width

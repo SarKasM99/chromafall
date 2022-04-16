@@ -28,6 +28,8 @@ import java.awt.Menu;
 import java.util.Iterator;
 
 public class MyGdxGame extends Game {
+    private boolean musicOn = true;
+    private boolean soundOn = true;
 
     /**
      * Called when the {@link Application} is first created.
@@ -41,4 +43,9 @@ public class MyGdxGame extends Game {
     public void render() {
         super.render();
     }
+
+    public void setMusicOn(boolean val){ musicOn = val;}
+    public void setSoundOn(boolean val){ soundOn = val;}
+    public boolean isMusicOn(){return musicOn;}
+    public boolean isSoundOn(){return soundOn;}
 }

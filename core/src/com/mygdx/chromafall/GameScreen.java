@@ -4,6 +4,8 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -47,11 +49,13 @@ public class GameScreen implements Screen {
 	private final int w = Gdx.graphics.getWidth();
 	private final int h = Gdx.graphics.getHeight();
 	private final InvisiblePath invisPath;
+
 	private Viewport gameView;
 	private SpriteBatch batch;
 	private Ball ball;
+
 	private Queue<Obstacle> usedObstacles;
-	private Game game;
+	private MyGdxGame game;
 	private Screen menusScreen;
 	private FreeTypeFontGenerator generator;
 	private BitmapFont font;
@@ -66,6 +70,12 @@ public class GameScreen implements Screen {
 	private Orb orb;
 	private boolean isOrbShown = false;
 
+	private Music gameMusic;
+	private Sound itemSound;
+	private Sound collisionSound;
+	private Sound open;
+	private Sound close;
+
 	private enum State{
 		PAUSE,
 		RUN,
@@ -75,7 +85,7 @@ public class GameScreen implements Screen {
 
 	private State state = State.RUN;
 
-	public GameScreen(Game game, Screen menusScreen) {
+	public GameScreen(final MyGdxGame game, Screen menusScreen) {
 		//save old
 		this.game = game;
 		this.menusScreen = menusScreen;
@@ -101,6 +111,7 @@ public class GameScreen implements Screen {
 		for (int i = 0; i < 30; i++) {
 			stockedObstacle.add(new Obstacle());
 		}
+
 		Obstacle temp = stockedObstacle.remove();
 		temp.prepare(w, this.ball, invisPath.evaluate(0));
 		usedObstacles.add(temp);
@@ -117,22 +128,26 @@ public class GameScreen implements Screen {
 		pauseButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				System.out.println(pauseButton.isChecked());
 				if(pauseButton.isChecked()){
+					if(game.isSoundOn()) open.play();
 					state = State.PAUSE;
 				}
 				else{
+					if(game.isSoundOn()) close.play();
 					state = State.RUN;
 				}
 			}
 		});
 
-
 		stage = new Stage(gameView);
 		stage.addActor(pauseButton);
 		Gdx.input.setInputProcessor(stage);
 
-
+		open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
+		close = Gdx.audio.newSound(Gdx.files.internal("Sounds/close.wav"));
+		collisionSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/collision.wav"));
+		itemSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/item.wav"));
+		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/game_music.mp3"));
 	}
 
 	@Override
@@ -141,6 +156,10 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
+		if(game.isMusicOn()){
+			gameMusic.setLooping(true);
+			gameMusic.play();
+		}
 
 		gameView.apply();
 		// Hex color code: #1a1a1a
@@ -154,12 +173,10 @@ public class GameScreen implements Screen {
 			    layout.setText(font, pauseText, Color.WHITE, w, Align.center, true);
 				font.draw(batch,layout, 0,h/2f + layout.height/2);
 				break;
+
 			case RUN:
 				time += delta;
 				score += delta*100;
-
-				System.out.println(invisPath.evaluate(score));
-				System.out.println("delta = " + delta);
 
 				if (!isOrbShown) {
 					float randomOrbNumber = MathUtils.random(0, 1234);
@@ -167,12 +184,15 @@ public class GameScreen implements Screen {
 						isOrbShown = true;
 					}
 				}
+
 				if (isOrbShown) {
 					orb.draw(batch);
 					orb.update(speed);
 					if (Intersector.overlaps(ball.getHitbox(), orb.getHitbox())) {
 						ball.setColor(orb.getColor());
+						if(game.isSoundOn()) itemSound.play();
 					}
+
 					if (orb.circle.y > h) {
 						isOrbShown = false;
 						orb = new Orb(invisPath.evaluate(score));
@@ -181,11 +201,11 @@ public class GameScreen implements Screen {
 
 				//obstacle
 				if(time > 5/speed){
-
 					Obstacle temp = stockedObstacle.remove();
 					temp.prepare(w, ball, invisPath.evaluate(score));
 					usedObstacles.add(temp);
 				}
+
 				for (Obstacle obs: usedObstacles) {
 					obs.draw(batch);
 					obs.update(speed);
@@ -196,6 +216,8 @@ public class GameScreen implements Screen {
 							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
 						ball.draw(batch);
 						batch.end();
+						if(game.isSoundOn()) collisionSound.play();
+						if(game.isMusicOn()) gameMusic.stop();
 						game.setScreen(new DeathScreen(score, menusScreen, game));
 						return;
 					}
@@ -213,8 +235,6 @@ public class GameScreen implements Screen {
 
 				//score
 				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
-
-
 
 				//increment
 				if(time > 5/speed) {
