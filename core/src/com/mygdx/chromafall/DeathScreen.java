@@ -3,6 +3,7 @@ package com.mygdx.chromafall;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -30,6 +31,9 @@ public class DeathScreen implements Screen {
     private final MyGdxGame gameApp;
     private final Screen menuScreen;
 
+    private Sound open;
+    private Sound close;
+
     public DeathScreen(int obtainedScore, Screen menuScreen, MyGdxGame applicationListener) {
         score = obtainedScore;
         stage = new Stage(new ExtendViewport(w, h));
@@ -43,8 +47,11 @@ public class DeathScreen implements Screen {
         fontParams.color = Color.WHITE;
         font = fontGen.generateFont(fontParams);
         fontGen.dispose();
-    }
 
+        open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
+        close = Gdx.audio.newSound(Gdx.files.internal("Sounds/close.wav"));
+    }
+    
     private ImageTextButton createButton(String text) {
         Texture emptyButtonTexture = new Texture(
                 Gdx.files.internal("EmptyButton.png"));
@@ -71,6 +78,7 @@ public class DeathScreen implements Screen {
         playAgainButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(gameApp.isSoundOn()) open.play();
                 table.reset();
                 gameApp.setScreen(new GameScreen(gameApp, menuScreen));
             }
@@ -79,6 +87,7 @@ public class DeathScreen implements Screen {
         goBackButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(gameApp.isSoundOn()) close.play();
                 table.reset();
                 gameApp.setScreen(menuScreen);
             }
@@ -87,6 +96,7 @@ public class DeathScreen implements Screen {
         quitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(gameApp.isSoundOn()) close.play();
                 Gdx.app.exit();
             }
         });
