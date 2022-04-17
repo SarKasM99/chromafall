@@ -20,33 +20,16 @@ public class Orb {
 
     public Orb(float x) {
         final Color[] colors = new Color[]{
-                Color.BLUE,
-                Color.BROWN,
-                Color.CHARTREUSE,
-                Color.CORAL,
-                Color.CYAN,
-                Color.FIREBRICK,
-                Color.FOREST,
-                Color.GOLD,
-                Color.GOLDENROD,
-                Color.GREEN,
-                Color.LIGHT_GRAY,
+                Color.WHITE,
+                Color.GRAY,
+                Color.ROYAL,
                 Color.LIME,
-                Color.MAGENTA,
-                Color.OLIVE,
+                Color.YELLOW,
                 Color.ORANGE,
+                Color.RED,
+                Color.BROWN,
                 Color.PINK,
                 Color.PURPLE,
-                Color.RED,
-                Color.ROYAL,
-                Color.SALMON,
-                Color.SCARLET,
-                Color.SKY,
-                Color.TAN,
-                Color.TEAL,
-                Color.VIOLET,
-                Color.WHITE,
-                Color.YELLOW
         };
         float radius = w*0.035f;
         int intRadius = MathUtils.ceil(radius)+1;
