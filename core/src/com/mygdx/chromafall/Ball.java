@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Ball {
-    public Circle ball;    //Will contain the position in our coordinate system
+    public Circle ball;    // Will contain the position in our coordinate system
     private Circle hitbox;
     private Texture ballImg;
     private Vector3 position = new Vector3();
@@ -22,9 +22,8 @@ public class Ball {
 
     public Ball(float Ox, float Oy, float radius){
         ball = new Circle(Ox,Oy,radius);
-        hitbox = new Circle(Ox, Oy, radius*.85f);
-        color = Color.ROYAL;
-        this.setColor(color);
+        hitbox = new Circle(Ox, Oy, radius*.85f);    // Smaller hitbox to avoid "lag" when death
+        this.setColor(Color.ROYAL);
     }
 
     public Color getColor() {
@@ -33,33 +32,28 @@ public class Ball {
 
     public void setColor(Color newColor) {
         color = newColor;
-        int intRadius = MathUtils.round(ball.radius);
-        Pixmap pixmap = new Pixmap(intRadius*2, intRadius*2, Pixmap.Format.RGBA8888);
+        int intRadius = MathUtils.round(ball.radius);    // Rounds radius (float) to an int for pixmap
+        Pixmap pixmap = new Pixmap(intRadius*2, intRadius*2, Pixmap.Format.RGBA8888);    // Image (square) IN MEMORY with dimensions intRadius*2 x intRadius*2 and RGBA8888 format (colors) to fill with a shape
         pixmap.setColor(color);
-        pixmap.fillCircle(intRadius, intRadius, intRadius);
-        ballImg = new Texture(pixmap);
+        pixmap.fillCircle(intRadius, intRadius, intRadius);    // begins to top left corner, goes intRadius to the right, then intRadius to the bottom, and then draws (in memory) a filled circle with radius intRadius from that position
+        ballImg = new Texture(pixmap);    // Texture is used for the draw method of a SpriteBatch
         pixmap.dispose();
     }
 
-    //This function will update the balls position
-    public void update(Viewport camera){
-        float accelerometerX = -Gdx.input.getAccelerometerX(); //Inversed compare to our coordinate system
-        float accelerometerY = -Gdx.input.getAccelerometerY();
-
-        position.set(accelerometerX,accelerometerY,0);
-        camera.unproject(position);
+    // This function will update the ball's position
+    public void update(){
+        float accelerometerX = -Gdx.input.getAccelerometerX();    // Inverted compared to our coordinates system
 
         ball.x += accelerometerX*10;
-        hitbox.x += accelerometerX*10;
 
-        //Boundaries on the x axis and y axis
-        ball.x = MathUtils.clamp(ball.x,ball.radius,camera.getWorldWidth()-ball.radius);
-        hitbox.x = MathUtils.clamp(hitbox.x,hitbox.radius,camera.getWorldWidth()-hitbox.radius);
+        // Boundaries on the x axis (for the position of the ball's center)
+        ball.x = MathUtils.clamp(ball.x,ball.radius,Gdx.graphics.getWidth()-ball.radius);
+        hitbox.x = ball.x;    // Hitbox center = ball center (previously, it was not the case if the ball hit the border)
     }
 
-    //This function will draw the ball
+    // This function will draw the ball
     public void draw(SpriteBatch batch){
-        //Since our texture is "square", we need to draw it from buttom left to top right, hence the x or y - radius
+        // Since our texture is "square", we need to draw it from bottom left to top right, hence the x (or y) - radius (from the center)
         batch.draw(ballImg,ball.x-ball.radius,ball.y-ball.radius, ball.radius*2,ball.radius*2);
     }
 
