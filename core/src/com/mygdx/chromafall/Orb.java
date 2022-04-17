@@ -32,10 +32,10 @@ public class Orb {
                 Color.PURPLE,
         };
         float radius = w*0.035f;
-        int intRadius = MathUtils.ceil(radius)+1;
+        int intRadius = MathUtils.ceil(radius);
         float y = -radius*2;
         circle = new Circle(x, y, radius);
-        Pixmap pixmap = new Pixmap(intRadius*2, intRadius*2, Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(intRadius*2+1, intRadius*2+1, Pixmap.Format.RGBA8888);
         color = colors[MathUtils.random(0, colors.length-1)];
         pixmap.setColor(color);
         pixmap.fillCircle(intRadius, intRadius, intRadius);
@@ -56,6 +56,6 @@ public class Orb {
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, circle.x, circle.y, circle.radius*2, circle.radius*2);
+        batch.draw(texture, circle.x-circle.radius, circle.y-circle.radius, circle.radius*2+1, circle.radius*2+1);
     }
 }

@@ -54,9 +54,9 @@ public class GameScreen implements Screen {
 
 	//Game parameters
 	private float time;
-	private float speed = 5;
-	private int incremencer = 10;
-	private boolean needtoPop = false;
+	private float speed;
+	private int incremencer;
+	private boolean needtoPop;
 	private int score;
 	private final InvisiblePath invisPath;
 
@@ -97,7 +97,12 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void show() {
+		//Initialising the game parameters
 		score = 0;
+		speed = 5;
+		incremencer = 10;
+		needtoPop = false;
+
 		//Defining the font in order to write text
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
