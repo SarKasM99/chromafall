@@ -36,14 +36,20 @@ public class MyGdxGame extends Game {
      */
     @Override
     public void create() {
-        this.setScreen(new MenuScreen(this));
+        setScreen(new MenuScreen(this));    // Starting with the menu screen
     }
 
     @Override
     public void render() {
-        super.render();
+        super.render();    // Game loop
     }
 
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
+
+    // Sounds and music
     public void setMusicOn(boolean val){ musicOn = val;}
     public void setSoundOn(boolean val){ soundOn = val;}
     public boolean isMusicOn(){return musicOn;}
