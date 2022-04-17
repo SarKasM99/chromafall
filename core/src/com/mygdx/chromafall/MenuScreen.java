@@ -97,17 +97,16 @@ public class MenuScreen implements Screen {
         // Buttons
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
-        param.size = 70;
+        param.size = w/14;
         param.color = Color.WHITE;
-        //param.borderWidth = 50;
 
         // Game over
         FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        fontParams.size = 110;
+        fontParams.size = w/7;
         fontParams.color = Color.WHITE;
         fontParams.borderColor = Color.FIREBRICK;
-        fontParams.borderWidth = 8;
+        fontParams.borderWidth = w/125;
 
         // Button case
         ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button
@@ -237,13 +236,13 @@ public class MenuScreen implements Screen {
         // Adds buttons to MainTable
 
         // Default cells options for the main table
-        mainTable.defaults().width(0.60f * w);
+        mainTable.defaults().width(0.65f * w);
         mainTable.defaults().height(0.10f * h);
         mainTable.defaults().pad(0.01f * h);    // Space between cells
         mainTable.defaults().align(Align.center);
 
         // Fills the table with the buttons (and logo)
-        mainTable.add(logoMain).size(0.40f*h).padBottom(0);
+        mainTable.add(logoMain).size(0.40f * h).padBottom(0);
         mainTable.row();    // Next cell
         mainTable.add(playButton);
         mainTable.row();
@@ -252,12 +251,12 @@ public class MenuScreen implements Screen {
         mainTable.add(quitButton);
 
         // Adds buttons to optionTable
-        optionTable.defaults().width(0.60f * w);
+        optionTable.defaults().width(0.65f * w);
         optionTable.defaults().height(0.10f * h);
         optionTable.defaults().pad(0.01f * h);
         optionTable.defaults().align(Align.center);
 
-        optionTable.add(logoOption).size(0.40f*h).padBottom(0);
+        optionTable.add(logoOption).size(0.40f * h).padBottom(0);
         optionTable.row();
         optionTable.add(soundButton);
         optionTable.row();
@@ -266,14 +265,14 @@ public class MenuScreen implements Screen {
         optionTable.add(backButton);
 
         // Adds buttons to deathTable
-        deathTable.defaults().width(0.60f * w);
+        deathTable.defaults().width(0.65f * w);
         deathTable.defaults().height(0.10f * h);
         deathTable.defaults().pad(0.01f * h);
         deathTable.defaults().align(Align.center);
 
         // Game Over
         Label.LabelStyle titleLabelStyle = new Label.LabelStyle(fontGen.generateFont(fontParams), Color.WHITE);
-        Label gameOverTitle = new Label("Game Over!", titleLabelStyle);
+        Label gameOverTitle = new Label("Game Over !", titleLabelStyle);
         gameOverTitle.setAlignment(Align.center);
         fontGen.dispose();    // Freeing fontGen to avoid memory leaks
 
@@ -283,9 +282,9 @@ public class MenuScreen implements Screen {
         scoreLabel.setAlignment(Align.center);
 
         deathTable.row();
-        deathTable.add(gameOverTitle).padTop(0.10f* h);
+        deathTable.add(gameOverTitle).padTop(0.10f * h);
         deathTable.row();
-        deathTable.add(scoreLabel).padBottom(0.15f* h);
+        deathTable.add(scoreLabel).padBottom(0.05f * h);
         deathTable.row();
         deathTable.add(playAgainButton);
         deathTable.row();
@@ -305,8 +304,8 @@ public class MenuScreen implements Screen {
         Gdx.gl.glClearColor(.102f,.102f,.102f, 1);    // Background
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        stage.act();
-        stage.draw();
+        stage.act();    // Updates the actors based on time
+        stage.draw();    // Draws everything in the stage
 
         // Menu music looping
         if(game.isMusicOn()) {
