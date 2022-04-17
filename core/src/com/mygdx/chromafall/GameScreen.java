@@ -35,7 +35,7 @@ public class GameScreen implements Screen {
 	private final int h = Gdx.graphics.getHeight();
 	private Viewport gameView;
 	private SpriteBatch batch;
-	private Screen menusScreen;
+	private MenuScreen menusScreen;
 	private Stage stage;
 
 	//Game objects
@@ -77,7 +77,7 @@ public class GameScreen implements Screen {
 
 	private State state = State.RUN;
 
-	public GameScreen(final MyGdxGame game, Screen menusScreen) {
+	public GameScreen(final MyGdxGame game, MenuScreen menusScreen) {
 		this.game = game;
 		this.menusScreen = menusScreen;
 
@@ -164,9 +164,9 @@ public class GameScreen implements Screen {
 		switch (state){
 			case PAUSE:
 				//Drawing the text and the button
-			    GlyphLayout layout = new GlyphLayout();
-			    String pauseText = "Game is paused.\n\nTap on the button in the upper right corner to resume the game.";
-			    layout.setText(font, pauseText, Color.WHITE, w, Align.center, true);
+				GlyphLayout layout = new GlyphLayout();
+				String pauseText = "Game is paused.\n\nTap on the button in the upper right corner to resume the game.";
+				layout.setText(font, pauseText, Color.WHITE, w, Align.center, true);
 				font.draw(batch,layout, 0,h/2f + layout.height/2);
 				break;
 
@@ -219,7 +219,8 @@ public class GameScreen implements Screen {
 						batch.end();
 						if(game.isSoundOn()) collisionSound.play();
 						if(game.isMusicOn()) gameMusic.stop();
-						game.setScreen(new DeathScreen(score, menusScreen, game));
+						menusScreen.setScore(score);
+						game.setScreen(menusScreen);
 						return;
 					}
 				}
@@ -237,7 +238,7 @@ public class GameScreen implements Screen {
 				//Drawing the score
 				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
 
-				//Increment 
+				//Increment
 				if(time > 5/speed) {
 					incremencer++;
 					speed = MathUtils.log(2, incremencer)*2;
