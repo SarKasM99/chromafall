@@ -1,40 +1,24 @@
 package com.mygdx.chromafall;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class MenuScreen implements Screen {
 
@@ -46,6 +30,7 @@ public class MenuScreen implements Screen {
 
     private MyGdxGame game;
     private MenuScreen screen;
+    private GameScreen gameScreen;
 
     private Music menuMusic;
     private Sound open;
@@ -55,9 +40,16 @@ public class MenuScreen implements Screen {
     private Table optionTable;
     private Table deathTable;
 
+    private Label scoreLabel;
+
+    private boolean isMainMenu = true;
     public MenuScreen(MyGdxGame gameArg) {
         screen = this;
         game = gameArg;    // MyGdxGame instance
+
+
+        gameScreen = new GameScreen(game,this);
+
         score = 0;
 
         stage = new Stage(new ExtendViewport(w, h));    // Stage handles the viewport and distributes input events.
@@ -66,16 +58,7 @@ public class MenuScreen implements Screen {
         open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
         close = Gdx.audio.newSound(Gdx.files.internal("Sounds/close.wav"));
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/menu_music.wav"));
-    }
 
-    public void setScore(int scoreObtained) {
-        score = scoreObtained;
-    }
-
-    @Override
-    public void show() {
-        // Stage should control input
-        Gdx.input.setInputProcessor(stage);
 
         // Creates Table (for the buttons locations)
         mainTable = new Table();
@@ -137,9 +120,9 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if(game.isSoundOn()) open.play();    // Opening sound
-                if(game.isMusicOn()) menuMusic.pause();    // Menu music stops
+                if(game.isMusicOn()) menuMusic.stop();    // Menu music stops
                 mainTable.remove();
-                game.setScreen(new GameScreen(game, screen));
+                game.setScreen(gameScreen);
             }
         });
 
@@ -211,7 +194,7 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if(game.isSoundOn()) open.play();
                 deathTable.remove();
-                game.setScreen(new GameScreen(game, screen));
+                game.setScreen(gameScreen);
             }
         });
 
@@ -219,7 +202,7 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if(game.isSoundOn()) close.play();
-                if(game.isSoundOn()) menuMusic.play();
+                isMainMenu = true;
                 deathTable.remove();
                 stage.addActor(mainTable);
             }
@@ -278,7 +261,7 @@ public class MenuScreen implements Screen {
 
         // Score
         Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
-        Label scoreLabel = new Label("Score : " + score, labelStyle);
+        scoreLabel = new Label("Score : " + score, labelStyle);
         scoreLabel.setAlignment(Align.center);
 
         deathTable.row();
@@ -291,11 +274,24 @@ public class MenuScreen implements Screen {
         deathTable.add(goBackButton);
         deathTable.row();
         deathTable.add(quitDeathButton);
+    }
+
+    public void setScore(int scoreObtained) {
+        score = scoreObtained;
+        scoreLabel.setText("Score : " + score);
+    }
+
+    @Override
+    public void show() {
+        // Stage should control input
+        Gdx.input.setInputProcessor(stage);
 
         // Adds MainTable to stage first
+
         if (score == 0) stage.addActor(mainTable);
         // Adds deathTable if a game was played (score != 0)
-        else stage.addActor(deathTable);
+        else {stage.addActor(deathTable); isMainMenu = false;}
+
     }
 
     @Override
@@ -308,7 +304,7 @@ public class MenuScreen implements Screen {
         stage.draw();    // Draws everything in the stage
 
         // Menu music looping
-        if(game.isMusicOn()) {
+        if(game.isMusicOn() && isMainMenu) {
             menuMusic.setLooping(true);
             menuMusic.play();
         }

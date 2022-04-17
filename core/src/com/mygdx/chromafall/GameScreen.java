@@ -57,7 +57,7 @@ public class GameScreen implements Screen {
 	private float speed = 5;
 	private int incremencer = 10;
 	private boolean needtoPop = false;
-	private int score = 0;
+	private int score;
 	private final InvisiblePath invisPath;
 
 	//Sound and music
@@ -84,6 +84,20 @@ public class GameScreen implements Screen {
 		//Initialising the viewport
 		this.gameView = new ExtendViewport(w,h);
 
+		//Sounds and music
+		open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
+		close = Gdx.audio.newSound(Gdx.files.internal("Sounds/close.wav"));
+		collisionSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/collision.wav"));
+		itemSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/item.wav"));
+		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/game_music.mp3"));
+		invisPath = new InvisiblePath(1);
+
+		stage = new Stage(gameView);
+	}
+
+	@Override
+	public void show() {
+		score = 0;
 		//Defining the font in order to write text
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -98,7 +112,6 @@ public class GameScreen implements Screen {
 		this.ball = new Ball(w/2f,h-h/12f,w/16f);
 		this.batch = new SpriteBatch();
 
-		invisPath = new InvisiblePath(1);
 		orb = new Orb(invisPath.evaluate(0));
 
 		for (int i = 0; i < 30; i++) {
@@ -132,21 +145,8 @@ public class GameScreen implements Screen {
 			}
 		});
 
-		//Stage
-		stage = new Stage(gameView);
 		stage.addActor(pauseButton);
 		Gdx.input.setInputProcessor(stage);
-
-		//Sounds and music
-		open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
-		close = Gdx.audio.newSound(Gdx.files.internal("Sounds/close.wav"));
-		collisionSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/collision.wav"));
-		itemSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/item.wav"));
-		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/game_music.mp3"));
-	}
-
-	@Override
-	public void show() {
 	}
 
 	@Override
@@ -189,7 +189,8 @@ public class GameScreen implements Screen {
 					if (Intersector.overlaps(ball.getHitbox(), orb.getHitbox())) {
 						ball.setColor(orb.getColor());
 						if(game.isSoundOn()) itemSound.play();
-						//TODO: isOrbShown = false;
+						isOrbShown = false;
+						orb = new Orb(invisPath.evaluate(score));
 					}
 
 					if (orb.circle.y > h) {
@@ -219,6 +220,7 @@ public class GameScreen implements Screen {
 						batch.end();
 						if(game.isSoundOn()) collisionSound.play();
 						if(game.isMusicOn()) gameMusic.stop();
+
 						menusScreen.setScore(score);
 						game.setScreen(menusScreen);
 						return;
