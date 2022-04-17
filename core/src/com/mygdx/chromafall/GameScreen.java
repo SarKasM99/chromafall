@@ -231,7 +231,7 @@ public class GameScreen implements Screen {
 				// ball must be drawn after the obstacles so that it can pass
 				// *over* them.
 				ball.draw(batch);
-				ball.update(gameView);
+				ball.update();
 
 				//score
 				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
