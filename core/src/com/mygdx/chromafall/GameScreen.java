@@ -1,13 +1,11 @@
 package com.mygdx.chromafall;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Game;
+
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -16,66 +14,60 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.FillViewport;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.awt.Font;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Stack;
 
 
 public class GameScreen implements Screen {
-
+	private MyGdxGame game;
 	private final int w = Gdx.graphics.getWidth();
 	private final int h = Gdx.graphics.getHeight();
-	private final InvisiblePath invisPath;
-
 	private Viewport gameView;
 	private SpriteBatch batch;
+	private Screen menusScreen;
+	private Stage stage;
+
+	//Game objects
 	private Ball ball;
 
 	private Queue<Obstacle> usedObstacles;
-	private MyGdxGame game;
-	private Screen menusScreen;
+	private Queue<Obstacle> stockedObstacle;
+
+	private Orb orb;
+	private boolean isOrbShown = false;
+
+	//Pause button
+	private Button pauseButton;
 	private FreeTypeFontGenerator generator;
 	private BitmapFont font;
-	private Queue<Obstacle> stockedObstacle;
+
+	//Game parameters
 	private float time;
 	private float speed = 5;
 	private int incremencer = 10;
 	private boolean needtoPop = false;
 	private int score = 0;
-	private Button pauseButton;
-	private Stage stage;
-	private Orb orb;
-	private boolean isOrbShown = false;
+	private final InvisiblePath invisPath;
 
+	//Sound and music
 	private Music gameMusic;
 	private Sound itemSound;
 	private Sound collisionSound;
 	private Sound open;
 	private Sound close;
 
+	//Defining the state of the game
 	private enum State{
 		PAUSE,
 		RUN,
@@ -86,24 +78,25 @@ public class GameScreen implements Screen {
 	private State state = State.RUN;
 
 	public GameScreen(final MyGdxGame game, Screen menusScreen) {
-		//save old
 		this.game = game;
 		this.menusScreen = menusScreen;
 
-		//init
-		stockedObstacle = new LinkedList<Obstacle>();
-		usedObstacles = new LinkedList<Obstacle>();
-
-		//creat all the needed
+		//Initialising the viewport
 		this.gameView = new ExtendViewport(w,h);
-		this.ball = new Ball(w/2f,h-h/12f,w/16f);
-		this.batch = new SpriteBatch();
 
+		//Defining the font in order to write text
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.color = Color.WHITE;
 		parameter.size = w/20;
 		font = generator.generateFont(parameter);
+
+		//Initialising game objects
+		stockedObstacle = new LinkedList<Obstacle>();
+		usedObstacles = new LinkedList<Obstacle>();
+
+		this.ball = new Ball(w/2f,h-h/12f,w/16f);
+		this.batch = new SpriteBatch();
 
 		invisPath = new InvisiblePath(1);
 		orb = new Orb(invisPath.evaluate(0));
@@ -116,7 +109,7 @@ public class GameScreen implements Screen {
 		temp.prepare(w, this.ball, invisPath.evaluate(0));
 		usedObstacles.add(temp);
 
-		//bouton pause
+		//Pause button
 		TextureRegionDrawable pauseb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PauseButton.png"))));
 		TextureRegionDrawable playb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PlayButton.png"))));
 
@@ -139,10 +132,12 @@ public class GameScreen implements Screen {
 			}
 		});
 
+		//Stage
 		stage = new Stage(gameView);
 		stage.addActor(pauseButton);
 		Gdx.input.setInputProcessor(stage);
 
+		//Sounds and music
 		open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
 		close = Gdx.audio.newSound(Gdx.files.internal("Sounds/close.wav"));
 		collisionSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/collision.wav"));
@@ -168,6 +163,7 @@ public class GameScreen implements Screen {
 		batch.begin();
 		switch (state){
 			case PAUSE:
+				//Drawing the text and the button
 			    GlyphLayout layout = new GlyphLayout();
 			    String pauseText = "Game is paused.\n\nTap on the button in the upper right corner to resume the game.";
 			    layout.setText(font, pauseText, Color.WHITE, w, Align.center, true);
@@ -178,6 +174,7 @@ public class GameScreen implements Screen {
 				time += delta;
 				score += delta*100;
 
+				//Spawning the orb
 				if (!isOrbShown) {
 					float randomOrbNumber = MathUtils.random(0, 1234);
 					if (1 <= randomOrbNumber && randomOrbNumber <= 1221) {
@@ -185,12 +182,14 @@ public class GameScreen implements Screen {
 					}
 				}
 
+				//Checking the player picked up the orb
 				if (isOrbShown) {
 					orb.draw(batch);
 					orb.update(speed);
 					if (Intersector.overlaps(ball.getHitbox(), orb.getHitbox())) {
 						ball.setColor(orb.getColor());
 						if(game.isSoundOn()) itemSound.play();
+						//TODO: isOrbShown = false;
 					}
 
 					if (orb.circle.y > h) {
@@ -199,7 +198,7 @@ public class GameScreen implements Screen {
 					}
 				}
 
-				//obstacle
+				//Spawning and managing obstacles
 				if(time > 5/speed){
 					Obstacle temp = stockedObstacle.remove();
 					temp.prepare(w, ball, invisPath.evaluate(score));
@@ -209,9 +208,11 @@ public class GameScreen implements Screen {
 				for (Obstacle obs: usedObstacles) {
 					obs.draw(batch);
 					obs.update(speed);
+
 					if(obs.getY() > h){
 						needtoPop = true;
 					}
+
 					if (ball.getColor() != obs.getColor() &&
 							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
 						ball.draw(batch);
@@ -233,10 +234,10 @@ public class GameScreen implements Screen {
 				ball.draw(batch);
 				ball.update();
 
-				//score
+				//Drawing the score
 				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
 
-				//increment
+				//Increment 
 				if(time > 5/speed) {
 					incremencer++;
 					speed = MathUtils.log(2, incremencer)*2;
@@ -248,7 +249,6 @@ public class GameScreen implements Screen {
 		stage.getViewport().apply();
 		stage.act();
 		stage.draw();
-
 	}
 
 	@Override
