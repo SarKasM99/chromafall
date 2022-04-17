@@ -22,8 +22,8 @@ public class Ball {
 
     public Ball(float Ox, float Oy, float radius){
         ball = new Circle(Ox,Oy,radius);
-        hitbox = new Circle(Ox, Oy, radius*.85f);    // Smaller hitbox to avoid "lag" when death
-        this.setColor(Color.ROYAL);
+        hitbox = new Circle(Ox, Oy, radius);    // Smaller hitbox to avoid "lag" when death
+        setColor(Color.ROYAL);
     }
 
     public Color getColor() {
