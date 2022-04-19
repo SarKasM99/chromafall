@@ -55,7 +55,7 @@ public class GameScreen implements Screen {
 	//Game parameters
 	private float time;
 	private float speed;
-	private int incremencer;
+	private int incrementer;
 	private boolean needtoPop;
 	private int score;
 	private final InvisiblePath invisPath;
@@ -100,7 +100,7 @@ public class GameScreen implements Screen {
 		//Initialising the game parameters
 		score = 0;
 		speed = 5;
-		incremencer = 10;
+		incrementer = 10;
 		needtoPop = false;
 
 		//Defining the font in order to write text
@@ -247,8 +247,8 @@ public class GameScreen implements Screen {
 
 				//Increment
 				if(time > 5/speed) {
-					incremencer++;
-					speed = MathUtils.log(2, incremencer)*2;
+					incrementer++;
+					speed = MathUtils.log(2, incrementer)*2;
 					time = 0;
 				}
 		}
