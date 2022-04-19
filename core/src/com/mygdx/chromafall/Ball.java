@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class Ball {
     public Circle ball;    // Will contain the position in our coordinate system
     private Texture ballImg;
-    private Vector3 position = new Vector3();
     private Color color;
 
     public Ball(float Ox, float Oy, float radius){
@@ -31,9 +30,9 @@ public class Ball {
     public void setColor(Color newColor) {
         color = newColor;
         int intRadius = MathUtils.ceil(ball.radius);    // Rounds radius (float) to an int for pixmap
-        Pixmap pixmap = new Pixmap(intRadius*2+1, intRadius*2+1, Pixmap.Format.RGBA8888);    // Image (square) IN MEMORY with dimensions intRadius*2 x intRadius*2 and RGBA8888 format (colors) to fill with a shape
+        Pixmap pixmap = new Pixmap(intRadius*2+1, intRadius*2+1, Pixmap.Format.RGBA8888);    // Image (square) IN MEMORY with dimensions intRadius*2+1 x intRadius*2+1 and RGBA8888 format (colors) to fill with a shape
         pixmap.setColor(color);
-        pixmap.fillCircle(intRadius, intRadius, intRadius);    // begins to top left corner, goes intRadius to the right, then intRadius to the bottom, and then draws (in memory) a filled circle with radius intRadius from that position
+        pixmap.fillCircle(intRadius, intRadius, intRadius);    // begins to top left corner pixel, goes intRadius pixels to the right, then intRadius pixels to the bottom, and then draws (in memory) a filled circle with radius intRadius pixels from that position
         ballImg = new Texture(pixmap);    // Texture is used for the draw method of a SpriteBatch
         pixmap.dispose();
     }
@@ -45,7 +44,7 @@ public class Ball {
         ball.x += accelerometerX*10;
 
         // Boundaries on the x axis (for the position of the ball's center)
-        ball.x = MathUtils.clamp(ball.x,ball.radius,Gdx.graphics.getWidth()-ball.radius);
+        ball.x = MathUtils.clamp(ball.x,ball.radius,Gdx.graphics.getWidth()-(ball.radius+1));
     }
 
     // This function will draw the ball
