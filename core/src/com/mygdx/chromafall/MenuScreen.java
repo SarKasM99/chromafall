@@ -312,7 +312,7 @@ public class MenuScreen implements Screen {
         mainTable.defaults().align(Align.center);
 
         // Fills the table with the buttons (and logo)
-        mainTable.add(logoMain).size(0.40f * h).padBottom(0);
+        mainTable.add(logoMain).size(0.35f * h).padBottom(0);
         mainTable.row();    // Next cell
         mainTable.add(playButton);
         mainTable.row();
@@ -330,7 +330,7 @@ public class MenuScreen implements Screen {
         optionTable.defaults().pad(0.01f * h);
         optionTable.defaults().align(Align.center);
 
-        optionTable.add(logoOption).size(0.40f * h).padBottom(0);
+        optionTable.add(logoOption).size(0.35f * h).padBottom(0);
         optionTable.row().size(5f);
         optionTable.add(soundButton);
         optionTable.row();
@@ -384,11 +384,11 @@ public class MenuScreen implements Screen {
         // Default cells options for the leaderboard table
         boardTable.defaults().width(0.65f * w);
         boardTable.defaults().height(0.10f * h);
-        boardTable.defaults().pad(0.005f * h);    // Space between cells
+        boardTable.defaults().pad(0.01f * h);    // Space between cells
         boardTable.defaults().align(Align.center);
 
         // Fills the leaderboard table with the buttons (and logo)
-        boardTable.add(logoBoard).size(0.40f * h);
+        boardTable.add(logoBoard).size(0.35f * h);
         boardTable.row();    // Next cell
         boardTable.add(highScores).padBottom(0.1f*h);
         boardTable.row();
