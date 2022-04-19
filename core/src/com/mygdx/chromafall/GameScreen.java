@@ -19,6 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
@@ -69,6 +72,12 @@ public class GameScreen implements Screen {
 	private Sound open;
 	private Sound close;
 
+	// Pause menu table
+	private Table pauseTable;
+	private Table optionTable;
+	private Label scoreLabelPause;
+	private Label scoreLabelOptions;
+
 	//Defining the state of the game
 	private enum State{
 		PAUSE,
@@ -79,12 +88,19 @@ public class GameScreen implements Screen {
 
 	private State state = State.RUN;
 
-	public GameScreen(final MyGdxGame game, MenuScreen menusScreen) {
+	public GameScreen(final MyGdxGame game, final MenuScreen menusScreen) {
 		this.game = game;
 		this.menusScreen = menusScreen;
 
-		//Initialising the viewport
+		// Initialising the viewport
 		this.gameView = new ExtendViewport(w,h);
+
+		// Batch
+		this.batch = new SpriteBatch();
+
+		stage = new Stage(gameView);
+
+		invisPath = new InvisiblePath(1);
 
 		//Sounds and music
 		open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
@@ -92,32 +108,215 @@ public class GameScreen implements Screen {
 		collisionSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/collision.wav"));
 		itemSound = Gdx.audio.newSound(Gdx.files.internal("Sounds/item.wav"));
 		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Sounds/game_music.mp3"));
-		invisPath = new InvisiblePath(1);
 
-		stage = new Stage(gameView);
-	}
+		// Game paused font
+		FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		fontParams.size = w/7;
+		fontParams.color = Color.WHITE;
+		fontParams.borderColor = Color.ROYAL;
+		fontParams.borderWidth = w/125;
 
-	@Override
-	public void show() {
-		//Initialising the game parameters
-		score = 0;
-		speed = 5;
-		incremencer = 10;
-		needtoPop = false;
-
-		//Defining the font in order to write text
+		// Score font
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.color = Color.WHITE;
 		parameter.size = w/20;
 		font = generator.generateFont(parameter);
 
+		// Creates Tables (for the pause menu buttons)
+		pauseTable = new Table();
+		pauseTable.setFillParent(true);
+		pauseTable.top();
+
+		optionTable = new Table();
+		optionTable.setFillParent(true);
+		optionTable.top();
+
+		// Buttons font
+		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
+		FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
+		param.size = w/14;
+		param.color = Color.WHITE;
+
+		// Buttons
+		ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button
+		buttonStyle.font = gen.generateFont(param);    // Generates the font with parameters param
+		buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png"))));    // Image of the button
+
+		TextureRegionDrawable pauseb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PauseButton.png"))));
+		TextureRegionDrawable playb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PlayButton.png"))));
+		pauseButton = new ImageButton(pauseb);
+		float pauseButtonSize = w/12f;
+		pauseButton.setSize(pauseButtonSize,pauseButtonSize);
+		pauseButton.setPosition(w-pauseButtonSize,h-pauseButtonSize);
+
+		ImageTextButton resumeButton = new ImageTextButton("Resume",buttonStyle);
+		ImageTextButton optionsButton = new ImageTextButton("Options",buttonStyle);
+		final ImageTextButton soundButton = new ImageTextButton("Sound : ON",buttonStyle);
+		final ImageTextButton musicButton = new ImageTextButton("Music : ON",buttonStyle);
+		ImageTextButton backButton  = new ImageTextButton("Back",buttonStyle);
+		ImageTextButton goBackButton  = new ImageTextButton("Give up",buttonStyle);
+		ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
+
+		// Listeners
+		pauseButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) open.play();
+				if(game.isSoundOn()) gameMusic.pause();
+				state = State.PAUSE;
+				pauseButton.remove();
+				scoreLabelPause.setText("Score : " + score);
+				scoreLabelOptions.setText("Score : " + score);
+				stage.addActor(pauseTable);
+			}
+		});
+
+		resumeButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) close.play();
+				if(game.isSoundOn()) gameMusic.play();
+				pauseTable.remove();
+				stage.addActor(pauseButton);
+				state = State.RUN;
+			}
+		});
+
+		optionsButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) open.play();
+				pauseTable.remove();
+				stage.addActor(optionTable);    // Replaces the main table
+			}
+		});
+
+		soundButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) {
+					soundButton.setText("Sound : OFF");
+					game.setSoundOn(false);
+				} else {
+					game.setSoundOn(true);
+					open.play();
+					soundButton.setText("Sound : ON");
+				}
+			}
+		});
+
+		musicButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isMusicOn()) {
+					if(game.isSoundOn()) close.play();
+					musicButton.setText("Music : OFF");
+					game.setMusicOn(false);
+				} else {
+					if(game.isSoundOn()) open.play();
+					musicButton.setText("Music : ON");
+					game.setMusicOn(true);
+				}
+			}
+		});
+
+		backButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) close.play();
+				optionTable.remove();
+				stage.addActor(pauseTable);    // Replaces the option table
+			}
+		});
+
+		goBackButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) close.play();
+				if(game.isSoundOn()) gameMusic.stop();
+				pauseButton.remove();
+				pauseTable.remove();
+				menusScreen.setScore(score);
+				game.setScreen(menusScreen);
+				state = State.RUN;
+			}
+		});
+
+		quitButton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if(game.isSoundOn()) close.play();
+				Gdx.app.exit();
+			}
+		});
+
+		// Adds buttons to tables
+
+		// Game Paused
+		Label.LabelStyle titleLabelStyle = new Label.LabelStyle(fontGen.generateFont(fontParams), Color.WHITE);
+		Label gamePausedTitle = new Label("Game paused", titleLabelStyle);
+		gamePausedTitle.setAlignment(Align.center);
+		Label gamePausedOptions = new Label("Game paused", titleLabelStyle);
+		gamePausedOptions.setAlignment(Align.center);
+		fontGen.dispose();
+
+		// Score
+		Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
+		scoreLabelPause = new Label("Score : " + score, labelStyle);
+		scoreLabelPause.setAlignment(Align.center);
+		scoreLabelOptions = new Label("Score : " + score, labelStyle);
+		scoreLabelOptions.setAlignment(Align.center);
+
+		pauseTable.defaults().width(0.65f * w);
+		pauseTable.defaults().height(0.10f * h);
+		pauseTable.defaults().pad(0.01f * h);
+		pauseTable.defaults().align(Align.center);
+
+		pauseTable.add(gamePausedTitle).padTop(0.10f * h);
+		pauseTable.row();
+		pauseTable.add(scoreLabelPause).padBottom(0.05f * h);
+		pauseTable.row();
+		pauseTable.add(resumeButton);
+//		pauseTable.row();
+//		pauseTable.add(optionsButton);
+		pauseTable.row();
+		pauseTable.add(goBackButton);
+		pauseTable.row();
+		pauseTable.add(quitButton);
+
+		optionTable.defaults().width(0.65f * w);
+		optionTable.defaults().height(0.10f * h);
+		optionTable.defaults().pad(0.01f * h);
+		optionTable.defaults().align(Align.center);
+
+		optionTable.add(gamePausedOptions).padTop(0.10f * h);
+		optionTable.row();
+		optionTable.add(scoreLabelOptions).padBottom(0.05f * h);
+		optionTable.row();
+		optionTable.add(soundButton);
+		optionTable.row();
+		optionTable.add(musicButton);
+		optionTable.row();
+		optionTable.add(backButton);
+	}
+
+	@Override
+	public void show() {
+		Gdx.input.setInputProcessor(stage);
+
+		//Initialising the game parameters
+		score = 0;
+		speed = 5;
+		incremencer = 10;
+		needtoPop = false;
+
 		//Initialising game objects
 		stockedObstacle = new LinkedList<Obstacle>();
 		usedObstacles = new LinkedList<Obstacle>();
 
 		this.ball = new Ball(w/2f,h-h/12f,w/16f);
-		this.batch = new SpriteBatch();
 
 		orb = new Orb(invisPath.evaluate(0));
 
@@ -129,31 +328,7 @@ public class GameScreen implements Screen {
 		temp.prepare(w, this.ball, invisPath.evaluate(0));
 		usedObstacles.add(temp);
 
-		//Pause button
-		TextureRegionDrawable pauseb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PauseButton.png"))));
-		TextureRegionDrawable playb = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("PlayButton.png"))));
-
-		pauseButton = new ImageButton(pauseb,pauseb,playb);
-		float pauseButtonSize = w/12f;
-		pauseButton.setSize(pauseButtonSize,pauseButtonSize);
-		pauseButton.setPosition(w-pauseButtonSize,h-pauseButtonSize);
-
-		pauseButton.addListener(new ClickListener(){
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				if(pauseButton.isChecked()){
-					if(game.isSoundOn()) open.play();
-					state = State.PAUSE;
-				}
-				else{
-					if(game.isSoundOn()) close.play();
-					state = State.RUN;
-				}
-			}
-		});
-
 		stage.addActor(pauseButton);
-		Gdx.input.setInputProcessor(stage);
 	}
 
 	@Override
@@ -170,14 +345,12 @@ public class GameScreen implements Screen {
 		batch.begin();
 		switch (state){
 			case PAUSE:
-				//Drawing the text and the button
-				GlyphLayout layout = new GlyphLayout();
-				String pauseText = "Game is paused.\n\nTap on the button in the upper right corner to resume the game.";
-				layout.setText(font, pauseText, Color.WHITE, w, Align.center, true);
-				font.draw(batch,layout, 0,h/2f + layout.height/2);
+				if(game.isSoundOn()) gameMusic.pause();
 				break;
 
 			case RUN:
+				if(game.isSoundOn()) gameMusic.play();
+
 				time += delta;
 				score += delta*100;
 

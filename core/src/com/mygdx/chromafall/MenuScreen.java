@@ -43,8 +43,10 @@ public class MenuScreen implements Screen {
     private Table optionTable;
     private Table deathTable;
     private Table boardTable;
+    private Table tutoTable;
 
     private Label scoreLabel;
+    private Label tutorial;
 
     private Label highScores;
 
@@ -71,18 +73,21 @@ public class MenuScreen implements Screen {
         optionTable = new Table();
         deathTable = new Table();
         boardTable = new Table();
+        tutoTable = new Table();
 
         // Sets table to fill stage
         mainTable.setFillParent(true);
         optionTable.setFillParent(true);
         deathTable.setFillParent(true);
         boardTable.setFillParent(true);
+        tutoTable.setFillParent(true);
 
         // Sets alignment of contents in the table. (table on the top)
         mainTable.top();
         optionTable.top();
         deathTable.top();
         boardTable.top();
+        tutoTable.top();
 
         // Creates fonts
 
@@ -92,9 +97,12 @@ public class MenuScreen implements Screen {
         param.size = w/14;
         param.color = Color.WHITE;
 
+        // Label style
+        final Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
+
         // Game over
-        FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        final FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
+        final FreeTypeFontGenerator.FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParams.size = w/7;
         fontParams.color = Color.WHITE;
         fontParams.borderColor = Color.FIREBRICK;
@@ -106,29 +114,43 @@ public class MenuScreen implements Screen {
         buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png"))));    // Image of the button
 
         // Creates buttons for the main table
-        ImageTextButton playButton = new ImageTextButton("Play",buttonStyle);
-        ImageTextButton optionsButton = new ImageTextButton("Options",buttonStyle);
-        ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
-        ImageTextButton boardButton = new ImageTextButton("Leaderboard",buttonStyle);
+        final ImageTextButton playButton = new ImageTextButton("Play",buttonStyle);
+        final ImageTextButton optionsButton = new ImageTextButton("Options",buttonStyle);
+        final ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
+        final ImageTextButton boardButton = new ImageTextButton("Leaderboard",buttonStyle);
+        final ImageTextButton tutoButton = new ImageTextButton("Tutorial",buttonStyle);
 
         // Creates buttons for the options table
         final ImageTextButton soundButton = new ImageTextButton("Sound : ON",buttonStyle);
         final ImageTextButton musicButton = new ImageTextButton("Music : ON",buttonStyle);
-        ImageTextButton backButton  = new ImageTextButton("Back",buttonStyle);
+        final ImageTextButton backButton  = new ImageTextButton("Back",buttonStyle);
 
         // Creates buttons for the death table
-        ImageTextButton playAgainButton = new ImageTextButton("Play again",buttonStyle);
-        ImageTextButton goBackButton = new ImageTextButton("Go back to menu",buttonStyle);
-        ImageTextButton quitDeathButton = new ImageTextButton("Quit",buttonStyle);
+        final ImageTextButton playAgainButton = new ImageTextButton("Play again",buttonStyle);
+        final ImageTextButton goBackButton = new ImageTextButton("Go back to menu",buttonStyle);
+        final ImageTextButton quitDeathButton = new ImageTextButton("Quit",buttonStyle);
 
         // Creates text and buttons for the leaderboard table
-        ImageTextButton boardGoBackButton = new ImageTextButton("Go back to menu",buttonStyle);
+        final ImageTextButton boardGoBackButton = new ImageTextButton("Go back to menu",buttonStyle);
 
+        // Creates buttons and label for the tuto table
+        tutorial = new Label(
+                "You play as a colorful ball falling through an endless pit.\n\n" +
+                "The pit contains rectangle obstacles that you must dodge by tilting your phone or tablet.\n\n" +
+                "Along the way,there are round orbs that you can pick up in order to change your own color.\n\n" +
+                "This is useful because you can safely pass through the obstacles that are the same color as your character.\n\n" +
+                "Try to survive as long as possible.\n\n" +
+                "Good luck and have fun\n\n",
+                labelStyle);
+        tutorial.setFontScale(0.65f);
+        tutorial.setWrap(true);
+        tutorial.setAlignment(Align.top,Align.center);
+        final ImageTextButton okButton = new ImageTextButton("ok",buttonStyle);
 
         // Logo
-        Image logoMain = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
-        Image logoOption = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
-        Image logoBoard = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
+        final Image logoMain = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
+        final Image logoOption = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
+        final Image logoBoard = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
 
         // Adds listeners to buttons of the main table
         playButton.addListener(new ClickListener(){
@@ -178,9 +200,18 @@ public class MenuScreen implements Screen {
         boardGoBackButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(game.isSoundOn()) close.play();
+                if (game.isSoundOn()) close.play();
                 boardTable.remove();
                 stage.addActor(mainTable);
+            }
+        });
+
+        tutoButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(game.isSoundOn()) close.play();    // Closing sound
+                mainTable.remove();
+                stage.addActor(tutoTable);
             }
         });
 
@@ -204,15 +235,15 @@ public class MenuScreen implements Screen {
         musicButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(game.isSoundOn()) open.play();
-
                 if(game.isMusicOn()) {
+                    if(game.isSoundOn()) close.play();
                     musicButton.setText("Music : OFF");
                     game.setMusicOn(false);
                     menuMusic.pause();
                 }
 
                 else{
+                    if(game.isSoundOn()) open.play();
                     musicButton.setText("Music : ON");
                     game.setMusicOn(true);
                     menuMusic.play();
@@ -230,6 +261,9 @@ public class MenuScreen implements Screen {
         });
 
         // Adds listeners to buttons of the death table
+        gameScreen.dispose();
+        // Creating a new game screen in order to have another invisible path
+        gameScreen = new GameScreen(game, this);
         playAgainButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -245,6 +279,18 @@ public class MenuScreen implements Screen {
                 if(game.isSoundOn()) close.play();
                 isMainMenu = true;
                 deathTable.remove();
+                stage.addActor(mainTable);
+            }
+        });
+
+        // Adds listeners to buttons of the tuto table
+
+        okButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(game.isSoundOn()) close.play();
+                isMainMenu = true;
+                tutoTable.remove();
                 stage.addActor(mainTable);
             }
         });
@@ -270,6 +316,8 @@ public class MenuScreen implements Screen {
         mainTable.row();    // Next cell
         mainTable.add(playButton);
         mainTable.row();
+        mainTable.add(tutoButton);
+        mainTable.row();
         mainTable.add(optionsButton);
         mainTable.row();
         mainTable.add(boardButton);
@@ -283,7 +331,7 @@ public class MenuScreen implements Screen {
         optionTable.defaults().align(Align.center);
 
         optionTable.add(logoOption).size(0.40f * h).padBottom(0);
-        optionTable.row();
+        optionTable.row().size(5f);
         optionTable.add(soundButton);
         optionTable.row();
         optionTable.add(musicButton);
@@ -296,6 +344,18 @@ public class MenuScreen implements Screen {
         deathTable.defaults().pad(0.01f * h);
         deathTable.defaults().align(Align.center);
 
+        // Add button and label to tutoTable
+        tutoTable.defaults().width(0.65f * w);
+        tutoTable.defaults().height(0.10f * h);
+        tutoTable.defaults().pad(0.01f * h);
+        tutoTable.defaults().align(Align.center);
+
+        tutoTable.row();
+        tutoTable.add(tutorial).padTop(0.1f * h);
+        tutoTable.row();
+        tutoTable.add(okButton).padTop(0.60f * h);
+
+
         // Game Over
         Label.LabelStyle titleLabelStyle = new Label.LabelStyle(fontGen.generateFont(fontParams), Color.WHITE);
         Label gameOverTitle = new Label("Game Over !", titleLabelStyle);
@@ -303,7 +363,6 @@ public class MenuScreen implements Screen {
         fontGen.dispose();    // Freeing fontGen to avoid memory leaks
 
         // Score
-        Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
         scoreLabel = new Label("Score : " + score, labelStyle);
         scoreLabel.setAlignment(Align.center);
 
@@ -325,7 +384,7 @@ public class MenuScreen implements Screen {
         // Default cells options for the leaderboard table
         boardTable.defaults().width(0.65f * w);
         boardTable.defaults().height(0.10f * h);
-        boardTable.defaults().pad(0.01f * h);    // Space between cells
+        boardTable.defaults().pad(0.005f * h);    // Space between cells
         boardTable.defaults().align(Align.center);
 
         // Fills the leaderboard table with the buttons (and logo)
