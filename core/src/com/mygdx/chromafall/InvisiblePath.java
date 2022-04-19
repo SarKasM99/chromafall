@@ -17,8 +17,8 @@ public class InvisiblePath {
         waveLengths = new float[n];
         phaseDifferences = new float[n];
         for (int i = 0; i < n; i++) {
-            amplitudes[i] = MathUtils.random(0, 0.70f*w);
-            waveLengths[i] = MathUtils.random(1, 25);
+            amplitudes[i] = MathUtils.random(0.20f*w, 0.40f*w);
+            waveLengths[i] = MathUtils.random(700, 1000);
             phaseDifferences[i] = MathUtils.random(0, 20);
         }
     }
