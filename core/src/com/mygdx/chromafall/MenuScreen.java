@@ -1,12 +1,15 @@
 package com.mygdx.chromafall;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -39,8 +42,11 @@ public class MenuScreen implements Screen {
     private Table mainTable;
     private Table optionTable;
     private Table deathTable;
+    private Table boardTable;
 
     private Label scoreLabel;
+
+    private Label highScores;
 
     private boolean isMainMenu = true;
     public MenuScreen(MyGdxGame gameArg) {
@@ -64,22 +70,25 @@ public class MenuScreen implements Screen {
         mainTable = new Table();
         optionTable = new Table();
         deathTable = new Table();
+        boardTable = new Table();
 
         // Sets table to fill stage
         mainTable.setFillParent(true);
         optionTable.setFillParent(true);
         deathTable.setFillParent(true);
+        boardTable.setFillParent(true);
 
         // Sets alignment of contents in the table. (table on the top)
         mainTable.top();
         optionTable.top();
         deathTable.top();
+        boardTable.top();
 
         // Creates fonts
 
         // Buttons
-        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
-        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
+        final FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
+        final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
         param.size = w/14;
         param.color = Color.WHITE;
 
@@ -100,6 +109,7 @@ public class MenuScreen implements Screen {
         ImageTextButton playButton = new ImageTextButton("Play",buttonStyle);
         ImageTextButton optionsButton = new ImageTextButton("Options",buttonStyle);
         ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
+        ImageTextButton boardButton = new ImageTextButton("Leaderboard",buttonStyle);
 
         // Creates buttons for the options table
         final ImageTextButton soundButton = new ImageTextButton("Sound : ON",buttonStyle);
@@ -111,9 +121,14 @@ public class MenuScreen implements Screen {
         ImageTextButton goBackButton = new ImageTextButton("Go back to menu",buttonStyle);
         ImageTextButton quitDeathButton = new ImageTextButton("Quit",buttonStyle);
 
+        // Creates text and buttons for the leaderboard table
+        ImageTextButton boardGoBackButton = new ImageTextButton("Go back to menu",buttonStyle);
+
+
         // Logo
         Image logoMain = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
         Image logoOption = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
+        Image logoBoard = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
 
         // Adds listeners to buttons of the main table
         playButton.addListener(new ClickListener(){
@@ -140,6 +155,32 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if(game.isSoundOn()) close.play();    // Closing sound
                 Gdx.app.exit();
+            }
+        });
+
+        boardButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(game.isSoundOn()) open.play();
+                Preferences prefs = Gdx.app.getPreferences("chromafall.leaderboard");
+                int hs1score = prefs.getInteger("hs1.score", 0);
+                int hs2score = prefs.getInteger("hs2.score", 0);
+                int hs3score = prefs.getInteger("hs3.score", 0);
+                int hs4score = prefs.getInteger("hs4.score", 0);
+                int hs5score = prefs.getInteger("hs5.score", 0);
+
+                highScores.setText("1:   "+hs1score+"\n" + "2:   "+hs2score+"\n" + "3:   "+hs3score+"\n" + "4:   "+hs4score+"\n" + "5:   "+hs5score);
+                mainTable.remove();
+                stage.addActor(boardTable);
+            }
+        });
+
+        boardGoBackButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(game.isSoundOn()) close.play();
+                boardTable.remove();
+                stage.addActor(mainTable);
             }
         });
 
@@ -231,6 +272,8 @@ public class MenuScreen implements Screen {
         mainTable.row();
         mainTable.add(optionsButton);
         mainTable.row();
+        mainTable.add(boardButton);
+        mainTable.row();
         mainTable.add(quitButton);
 
         // Adds buttons to optionTable
@@ -274,6 +317,23 @@ public class MenuScreen implements Screen {
         deathTable.add(goBackButton);
         deathTable.row();
         deathTable.add(quitDeathButton);
+
+        // Leaderboard labels
+        Label.LabelStyle highScoresStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
+        highScores = new Label("1:\n2:\n3:\n4:\n5:", highScoresStyle);
+
+        // Default cells options for the leaderboard table
+        boardTable.defaults().width(0.65f * w);
+        boardTable.defaults().height(0.10f * h);
+        boardTable.defaults().pad(0.01f * h);    // Space between cells
+        boardTable.defaults().align(Align.center);
+
+        // Fills the leaderboard table with the buttons (and logo)
+        boardTable.add(logoBoard).size(0.40f * h);
+        boardTable.row();    // Next cell
+        boardTable.add(highScores).padBottom(0.1f*h);
+        boardTable.row();
+        boardTable.add(boardGoBackButton);
     }
 
     public void setScore(int scoreObtained) {

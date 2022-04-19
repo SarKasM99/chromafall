@@ -1,6 +1,7 @@
 package com.mygdx.chromafall;
 
 
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -59,6 +60,7 @@ public class GameScreen implements Screen {
 	private boolean needtoPop;
 	private int score;
 	private final InvisiblePath invisPath;
+	private Preferences prefs;
 
 	//Sound and music
 	private Music gameMusic;
@@ -225,6 +227,43 @@ public class GameScreen implements Screen {
 						batch.end();
 						if(game.isSoundOn()) collisionSound.play();
 						if(game.isMusicOn()) gameMusic.stop();
+
+						prefs = Gdx.app.getPreferences("chromafall.leaderboard");
+						int hs1score = prefs.getInteger("hs1.score", 0);
+						int hs2score = prefs.getInteger("hs2.score", 0);
+						int hs3score = prefs.getInteger("hs3.score", 0);
+						int hs4score = prefs.getInteger("hs4.score", 0);
+						int hs5score = prefs.getInteger("hs5.score", 0);
+						if (score > hs1score) {
+							prefs.putInteger("hs1.score", score);
+							prefs.putInteger("hs2.score", hs1score);
+							prefs.putInteger("hs3.score", hs2score);
+							prefs.putInteger("hs4.score", hs3score);
+							prefs.putInteger("hs5.score", hs4score);
+							prefs.flush();
+						}
+						else if (score > hs2score) {
+							prefs.putInteger("hs2.score", score);
+							prefs.putInteger("hs3.score", hs2score);
+							prefs.putInteger("hs4.score", hs3score);
+							prefs.putInteger("hs5.score", hs4score);
+							prefs.flush();
+						}
+						else if (score > hs3score) {
+							prefs.putInteger("hs3.score", score);
+							prefs.putInteger("hs4.score", hs3score);
+							prefs.putInteger("hs5.score", hs4score);
+							prefs.flush();
+						}
+						else if (score > hs4score) {
+							prefs.putInteger("hs4.score", score);
+							prefs.putInteger("hs5.score", hs4score);
+							prefs.flush();
+						}
+						else if (score > hs5score) {
+							prefs.putInteger("hs5.score", score);
+							prefs.flush();
+						}
 
 						menusScreen.setScore(score);
 						game.setScreen(menusScreen);
