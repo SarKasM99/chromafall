@@ -163,15 +163,15 @@ public class MenuScreen implements Screen {
         musicButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if(game.isSoundOn()) open.play();
-
                 if(game.isMusicOn()) {
+                    if(game.isSoundOn()) close.play();
                     musicButton.setText("Music : OFF");
                     game.setMusicOn(false);
                     menuMusic.pause();
                 }
 
                 else{
+                    if(game.isSoundOn()) open.play();
                     musicButton.setText("Music : ON");
                     game.setMusicOn(true);
                     menuMusic.play();
