@@ -189,6 +189,9 @@ public class MenuScreen implements Screen {
         });
 
         // Adds listeners to buttons of the death table
+        gameScreen.dispose();
+        // Creating a new game screen in order to have another invisible path
+        gameScreen = new GameScreen(game, this);
         playAgainButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
