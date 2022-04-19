@@ -39,8 +39,10 @@ public class MenuScreen implements Screen {
     private Table mainTable;
     private Table optionTable;
     private Table deathTable;
+    private Table tutoTable;
 
     private Label scoreLabel;
+    private Label tutorial;
 
     private boolean isMainMenu = true;
     public MenuScreen(MyGdxGame gameArg) {
@@ -64,24 +66,28 @@ public class MenuScreen implements Screen {
         mainTable = new Table();
         optionTable = new Table();
         deathTable = new Table();
+        tutoTable = new Table();
 
         // Sets table to fill stage
         mainTable.setFillParent(true);
         optionTable.setFillParent(true);
         deathTable.setFillParent(true);
+        tutoTable.setFillParent(true);
 
         // Sets alignment of contents in the table. (table on the top)
         mainTable.top();
         optionTable.top();
         deathTable.top();
-
-        // Creates fonts
+        tutoTable.top();
 
         // Buttons
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
         param.size = w/14;
         param.color = Color.WHITE;
+
+        // Label style
+        Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
 
         // Game over
         FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
@@ -100,6 +106,7 @@ public class MenuScreen implements Screen {
         ImageTextButton playButton = new ImageTextButton("Play",buttonStyle);
         ImageTextButton optionsButton = new ImageTextButton("Options",buttonStyle);
         ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
+        ImageTextButton tutoButton = new ImageTextButton("Tutorial",buttonStyle);
 
         // Creates buttons for the options table
         final ImageTextButton soundButton = new ImageTextButton("Sound : ON",buttonStyle);
@@ -110,6 +117,20 @@ public class MenuScreen implements Screen {
         ImageTextButton playAgainButton = new ImageTextButton("Play again",buttonStyle);
         ImageTextButton goBackButton = new ImageTextButton("Go back to menu",buttonStyle);
         ImageTextButton quitDeathButton = new ImageTextButton("Quit",buttonStyle);
+
+        // Creates buttons and label for the tuto table
+        tutorial = new Label(
+                "You play as a colorful ball falling through an endless pit.\n\n" +
+                "The pit contains rectangle obstacles that you must dodge by tilting your phone or tablet.\n\n" +
+                "Along the way,there are round orbs that you can pick up in order to change your own color.\n\n" +
+                "This is useful because you can safely pass through the obstacles that are the same color as your character.\n\n" +
+                "Try to survive as long as possible.\n\n" +
+                "Good luck and have fun\n\n",
+                labelStyle);
+        tutorial.setFontScale(0.65f);
+        tutorial.setWrap(true);
+        tutorial.setAlignment(Align.top,Align.center);
+        ImageTextButton okButton = new ImageTextButton("ok",buttonStyle);
 
         // Logo
         Image logoMain = new Image(new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("chroma-fall-logo.png")))));
@@ -140,6 +161,15 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if(game.isSoundOn()) close.play();    // Closing sound
                 Gdx.app.exit();
+            }
+        });
+
+        tutoButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(game.isSoundOn()) close.play();    // Closing sound
+                mainTable.remove();
+                stage.addActor(tutoTable);
             }
         });
 
@@ -211,6 +241,18 @@ public class MenuScreen implements Screen {
             }
         });
 
+        // Adds listeners to buttons of the tuto table
+
+        okButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(game.isSoundOn()) close.play();
+                isMainMenu = true;
+                tutoTable.remove();
+                stage.addActor(mainTable);
+            }
+        });
+
         quitDeathButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -232,6 +274,8 @@ public class MenuScreen implements Screen {
         mainTable.row();    // Next cell
         mainTable.add(playButton);
         mainTable.row();
+        mainTable.add(tutoButton);
+        mainTable.row();
         mainTable.add(optionsButton);
         mainTable.row();
         mainTable.add(quitButton);
@@ -243,7 +287,7 @@ public class MenuScreen implements Screen {
         optionTable.defaults().align(Align.center);
 
         optionTable.add(logoOption).size(0.40f * h).padBottom(0);
-        optionTable.row();
+        optionTable.row().size(5f);
         optionTable.add(soundButton);
         optionTable.row();
         optionTable.add(musicButton);
@@ -256,6 +300,18 @@ public class MenuScreen implements Screen {
         deathTable.defaults().pad(0.01f * h);
         deathTable.defaults().align(Align.center);
 
+        // Add button and label to tutoTable
+        tutoTable.defaults().width(0.65f * w);
+        tutoTable.defaults().height(0.10f * h);
+        tutoTable.defaults().pad(0.01f * h);
+        tutoTable.defaults().align(Align.center);
+
+        tutoTable.row();
+        tutoTable.add(tutorial).padTop(0.1f * h);
+        tutoTable.row();
+        tutoTable.add(okButton).padTop(0.60f * h);
+
+
         // Game Over
         Label.LabelStyle titleLabelStyle = new Label.LabelStyle(fontGen.generateFont(fontParams), Color.WHITE);
         Label gameOverTitle = new Label("Game Over !", titleLabelStyle);
@@ -263,7 +319,6 @@ public class MenuScreen implements Screen {
         fontGen.dispose();    // Freeing fontGen to avoid memory leaks
 
         // Score
-        Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
         scoreLabel = new Label("Score : " + score, labelStyle);
         scoreLabel.setAlignment(Align.center);
 
