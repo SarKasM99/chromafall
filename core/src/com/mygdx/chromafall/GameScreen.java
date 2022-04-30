@@ -71,6 +71,9 @@ public class GameScreen implements Screen {
 	private Sound collisionSound;
 	private Sound open;
 	private Sound close;
+	private boolean isGameMenu;
+	public final ImageTextButton soundButton;
+	public final ImageTextButton musicButton;
 
 	// Pause menu table
 	private Table pauseTable;
@@ -91,7 +94,7 @@ public class GameScreen implements Screen {
 	public GameScreen(final MyGdxGame game, final MenuScreen menusScreen) {
 		this.game = game;
 		this.menusScreen = menusScreen;
-
+		isGameMenu = true;
 		// Initialising the viewport
 		this.gameView = new ExtendViewport(w,h);
 
@@ -115,7 +118,7 @@ public class GameScreen implements Screen {
 		fontParams.size = w/7;
 		fontParams.color = Color.WHITE;
 		fontParams.borderColor = Color.ROYAL;
-		fontParams.borderWidth = w/125;
+		fontParams.borderWidth = w/125f;
 
 		// Score font
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
@@ -153,16 +156,17 @@ public class GameScreen implements Screen {
 
 		ImageTextButton resumeButton = new ImageTextButton("Resume",buttonStyle);
 		ImageTextButton optionsButton = new ImageTextButton("Options",buttonStyle);
-		final ImageTextButton soundButton = new ImageTextButton("Sound : ON",buttonStyle);
-		final ImageTextButton musicButton = new ImageTextButton("Music : ON",buttonStyle);
+		soundButton = new ImageTextButton("Sound : ON",buttonStyle);
+		musicButton = new ImageTextButton("Music : ON",buttonStyle);
 		ImageTextButton backButton  = new ImageTextButton("Back",buttonStyle);
-		ImageTextButton goBackButton  = new ImageTextButton("Give up",buttonStyle);
+		ImageTextButton giveUpButton  = new ImageTextButton("Give up",buttonStyle);
 		ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
 
 		// Listeners
 		pauseButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
+				isGameMenu = false;
 				if(game.isSoundOn()) open.play();
 				if(game.isSoundOn()) gameMusic.pause();
 				state = State.PAUSE;
@@ -176,8 +180,9 @@ public class GameScreen implements Screen {
 		resumeButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
+				isGameMenu = true;
 				if(game.isSoundOn()) close.play();
-				if(game.isSoundOn()) gameMusic.play();
+				if(game.isMusicOn()) gameMusic.play();
 				pauseTable.remove();
 				stage.addActor(pauseButton);
 				state = State.RUN;
@@ -198,11 +203,13 @@ public class GameScreen implements Screen {
 			public void clicked(InputEvent event, float x, float y) {
 				if(game.isSoundOn()) {
 					soundButton.setText("Sound : OFF");
+					menusScreen.soundButton.setText("Sound : OFF");
 					game.setSoundOn(false);
 				} else {
 					game.setSoundOn(true);
 					open.play();
 					soundButton.setText("Sound : ON");
+					menusScreen.soundButton.setText("Sound : ON");
 				}
 			}
 		});
@@ -213,10 +220,12 @@ public class GameScreen implements Screen {
 				if(game.isMusicOn()) {
 					if(game.isSoundOn()) close.play();
 					musicButton.setText("Music : OFF");
+					menusScreen.musicButton.setText("Music : OFF");
 					game.setMusicOn(false);
 				} else {
 					if(game.isSoundOn()) open.play();
 					musicButton.setText("Music : ON");
+					menusScreen.musicButton.setText("Music : ON");
 					game.setMusicOn(true);
 				}
 			}
@@ -231,16 +240,15 @@ public class GameScreen implements Screen {
 			}
 		});
 
-		goBackButton.addListener(new ClickListener(){
+		giveUpButton.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				if(game.isSoundOn()) close.play();
-				if(game.isSoundOn()) gameMusic.stop();
+				if(game.isMusicOn()) gameMusic.stop();
 				pauseButton.remove();
 				pauseTable.remove();
 				menusScreen.setScore(score);
 				game.setScreen(menusScreen);
-				state = State.RUN;
 			}
 		});
 
@@ -282,7 +290,7 @@ public class GameScreen implements Screen {
 //		pauseTable.row();
 //		pauseTable.add(optionsButton);
 		pauseTable.row();
-		pauseTable.add(goBackButton);
+		pauseTable.add(giveUpButton);
 		pauseTable.row();
 		pauseTable.add(quitButton);
 
@@ -311,7 +319,8 @@ public class GameScreen implements Screen {
 		speed = 5;
 		incremencer = 10;
 		needtoPop = false;
-
+		isGameMenu = true;
+		state = State.RUN;
 		//Initialising game objects
 		stockedObstacle = new LinkedList<Obstacle>();
 		usedObstacles = new LinkedList<Obstacle>();
@@ -333,7 +342,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		if(game.isMusicOn()){
+		if(game.isMusicOn() && isGameMenu){
 			gameMusic.setLooping(true);
 			gameMusic.play();
 		}
@@ -345,12 +354,9 @@ public class GameScreen implements Screen {
 		batch.begin();
 		switch (state){
 			case PAUSE:
-				if(game.isSoundOn()) gameMusic.pause();
 				break;
 
 			case RUN:
-				if(game.isSoundOn()) gameMusic.play();
-
 				time += delta;
 				score += delta*100;
 

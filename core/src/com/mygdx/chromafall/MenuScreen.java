@@ -45,6 +45,9 @@ public class MenuScreen implements Screen {
     private Table boardTable;
     private Table tutoTable;
 
+    public final ImageTextButton soundButton;
+    public final ImageTextButton musicButton;
+
     private Label scoreLabel;
     private Label tutorial;
 
@@ -106,7 +109,7 @@ public class MenuScreen implements Screen {
         fontParams.size = w/7;
         fontParams.color = Color.WHITE;
         fontParams.borderColor = Color.FIREBRICK;
-        fontParams.borderWidth = w/125;
+        fontParams.borderWidth = w/125f;
 
         // Button case
         ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button
@@ -121,8 +124,8 @@ public class MenuScreen implements Screen {
         final ImageTextButton tutoButton = new ImageTextButton("Tutorial",buttonStyle);
 
         // Creates buttons for the options table
-        final ImageTextButton soundButton = new ImageTextButton("Sound : ON",buttonStyle);
-        final ImageTextButton musicButton = new ImageTextButton("Music : ON",buttonStyle);
+        soundButton = new ImageTextButton("Sound : ON",buttonStyle);
+        musicButton = new ImageTextButton("Music : ON",buttonStyle);
         final ImageTextButton backButton  = new ImageTextButton("Back",buttonStyle);
 
         // Creates buttons for the death table
@@ -221,6 +224,7 @@ public class MenuScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 if(game.isSoundOn()) {
                     soundButton.setText("Sound : OFF");
+                    gameScreen.soundButton.setText("Sound : OFF");
                     game.setSoundOn(false);
                 }
 
@@ -228,6 +232,7 @@ public class MenuScreen implements Screen {
                     game.setSoundOn(true);
                     open.play();
                     soundButton.setText("Sound : ON");
+                    gameScreen.soundButton.setText("Sound : ON");
                 }
             }
         });
@@ -238,6 +243,7 @@ public class MenuScreen implements Screen {
                 if(game.isMusicOn()) {
                     if(game.isSoundOn()) close.play();
                     musicButton.setText("Music : OFF");
+                    gameScreen.musicButton.setText("Music : OFF");
                     game.setMusicOn(false);
                     menuMusic.pause();
                 }
@@ -245,6 +251,7 @@ public class MenuScreen implements Screen {
                 else{
                     if(game.isSoundOn()) open.play();
                     musicButton.setText("Music : ON");
+                    gameScreen.musicButton.setText("Music : ON");
                     game.setMusicOn(true);
                     menuMusic.play();
                 }
@@ -261,9 +268,9 @@ public class MenuScreen implements Screen {
         });
 
         // Adds listeners to buttons of the death table
-        gameScreen.dispose();
+        //gameScreen.dispose();
         // Creating a new game screen in order to have another invisible path
-        gameScreen = new GameScreen(game, this);
+        //gameScreen = new GameScreen(game, this);
         playAgainButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -354,7 +361,6 @@ public class MenuScreen implements Screen {
         tutoTable.add(tutorial).padTop(0.1f * h);
         tutoTable.row();
         tutoTable.add(okButton).padTop(0.60f * h);
-
 
         // Game Over
         Label.LabelStyle titleLabelStyle = new Label.LabelStyle(fontGen.generateFont(fontParams), Color.WHITE);
