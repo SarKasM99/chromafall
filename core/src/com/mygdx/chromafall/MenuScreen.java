@@ -110,7 +110,7 @@ public class MenuScreen implements Screen {
         fontParams.size = w/7;
         fontParams.color = Color.WHITE;
         fontParams.borderColor = Color.FIREBRICK;
-        fontParams.borderWidth = w/125f;
+        fontParams.borderWidth = w/125;
 
         // Button case
         ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button

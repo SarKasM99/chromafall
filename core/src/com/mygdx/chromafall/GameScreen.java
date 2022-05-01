@@ -122,7 +122,7 @@ public class GameScreen implements Screen {
 		fontParams.size = w/7;
 		fontParams.color = Color.WHITE;
 		fontParams.borderColor = Color.ROYAL;
-		fontParams.borderWidth = w/125f;
+		fontParams.borderWidth = w/125;
 
 		// Score font
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
