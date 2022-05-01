@@ -287,8 +287,8 @@ public class GameScreen implements Screen {
 		pauseTable.add(scoreLabelPause).padBottom(0.05f * h);
 		pauseTable.row();
 		pauseTable.add(resumeButton);
-//		pauseTable.row();
-//		pauseTable.add(optionsButton);
+		pauseTable.row();
+		pauseTable.add(optionsButton);
 		pauseTable.row();
 		pauseTable.add(giveUpButton);
 

@@ -8,8 +8,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -51,15 +49,10 @@ public class MenuScreen implements Screen {
     private Table boardTable;
     private Table tutoTable;
 
-//    public final ImageTextButton soundButton;
-//    public final ImageTextButton musicButton;
-
     private Label scoreLabel;
     private Label deathScoreLabel;
     private Label tutorial;
     public Label highScores;
-
-//    private Label highScores;
 
     private boolean isMainMenu = true;
     public MenuScreen(MyGdxGame gameArg) {
@@ -102,20 +95,18 @@ public class MenuScreen implements Screen {
         boardTable.top();
         tutoTable.top();
 
-        // Creates fonts
-
         // Buttons
-        final FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
-        final FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
+        FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));    // Font generator with model myFont.ttf
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
         param.size = w/14;
         param.color = Color.WHITE;
 
         // Label style
-        final Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
+        Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
 
         // Game over
-        final FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
-        final FreeTypeFontGenerator.FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter fontParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
         fontParams.size = w/7;
         fontParams.color = Color.WHITE;
         fontParams.borderColor = Color.FIREBRICK;
@@ -447,7 +438,7 @@ public class MenuScreen implements Screen {
         mainTable.defaults().align(Align.center);
 
         // Fills the table with the buttons (and logo)
-        mainTable.add(logoMain).size(0.35f * h).padBottom(0);
+        mainTable.add(logoMain).size(0.40f * h).padBottom(0);
         mainTable.row();    // Next cell
         mainTable.add(playButton).padTop(-0.015f * h);
         mainTable.row();
