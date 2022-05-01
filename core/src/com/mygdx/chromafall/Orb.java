@@ -17,20 +17,9 @@ public class Orb {
     public Circle circle;
     private Color color;
     private Texture texture;
+    public static Color[] colors = MyGdxGame.colors;
 
     public Orb(float x) {
-        final Color[] colors = new Color[]{
-                Color.WHITE,
-                Color.GRAY,
-                Color.ROYAL,
-                Color.LIME,
-                Color.YELLOW,
-                Color.ORANGE,
-                Color.RED,
-                Color.BROWN,
-                Color.PINK,
-                Color.PURPLE,
-        };
         float radius = w*0.035f;
         int intRadius = MathUtils.ceil(radius);
         float y = -radius*2;
@@ -58,4 +47,9 @@ public class Orb {
     public void draw(SpriteBatch batch) {
         batch.draw(texture, circle.x-circle.radius, circle.y-circle.radius, circle.radius*2+1, circle.radius*2+1);
     }
+
+    public void setColors(Color[] colorTab) {
+        colors = colorTab;
+    }
+
 }

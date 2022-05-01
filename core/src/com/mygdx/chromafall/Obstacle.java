@@ -18,18 +18,7 @@ public class Obstacle {
     private final Texture obsImg;
     private float initSpeed = 0.5f;
     private Color color;
-    private final Color[] colors = new Color[]{
-        Color.WHITE,
-        Color.GRAY,
-        Color.ROYAL,
-        Color.LIME,
-        Color.YELLOW,
-        Color.ORANGE,
-        Color.RED,
-        Color.BROWN,
-        Color.PINK,
-        Color.PURPLE,
-    };
+    public static Color[] colors = MyGdxGame.colors;
 
     public Obstacle(){
         Color i = Color.YELLOW;
@@ -75,6 +64,10 @@ public class Obstacle {
 
     public Rectangle getHitbox(){
         return this.obstacle;
+    }
+
+    public void setColors(Color[] colorTab) {
+        colors = colorTab;
     }
 
 }
