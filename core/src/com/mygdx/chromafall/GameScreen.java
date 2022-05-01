@@ -1,6 +1,8 @@
 package com.mygdx.chromafall;
 
 
+
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
@@ -63,7 +65,9 @@ public class GameScreen implements Screen {
 	private boolean needtoPop;
 	private int score;
 	private final InvisiblePath invisPath;
-	private Preferences prefs;
+	public Preferences prefs;
+	private long deathTime;
+	public String highscoreName;
 
 	//Sound and music
 	private Music gameMusic;
@@ -160,7 +164,6 @@ public class GameScreen implements Screen {
 		musicButton = new ImageTextButton("Music : ON",buttonStyle);
 		ImageTextButton backButton  = new ImageTextButton("Back",buttonStyle);
 		ImageTextButton giveUpButton  = new ImageTextButton("Give up",buttonStyle);
-		ImageTextButton quitButton = new ImageTextButton("Quit",buttonStyle);
 
 		// Listeners
 		pauseButton.addListener(new ClickListener(){
@@ -204,12 +207,14 @@ public class GameScreen implements Screen {
 				if(game.isSoundOn()) {
 					soundButton.setText("Sound : OFF");
 					menusScreen.soundButton.setText("Sound : OFF");
+					menusScreen.deathSoundButton.setText(("Sound : OFF"));
 					game.setSoundOn(false);
 				} else {
 					game.setSoundOn(true);
 					open.play();
 					soundButton.setText("Sound : ON");
 					menusScreen.soundButton.setText("Sound : ON");
+					menusScreen.deathSoundButton.setText(("Sound : ON"));
 				}
 			}
 		});
@@ -221,11 +226,13 @@ public class GameScreen implements Screen {
 					if(game.isSoundOn()) close.play();
 					musicButton.setText("Music : OFF");
 					menusScreen.musicButton.setText("Music : OFF");
+					menusScreen.deathMusicButton.setText("Music : OFF");
 					game.setMusicOn(false);
 				} else {
 					if(game.isSoundOn()) open.play();
 					musicButton.setText("Music : ON");
 					menusScreen.musicButton.setText("Music : ON");
+					menusScreen.deathMusicButton.setText("Music : ON");
 					game.setMusicOn(true);
 				}
 			}
@@ -248,15 +255,8 @@ public class GameScreen implements Screen {
 				pauseButton.remove();
 				pauseTable.remove();
 				menusScreen.setScore(score);
+				updateHighScores();
 				game.setScreen(menusScreen);
-			}
-		});
-
-		quitButton.addListener(new ClickListener(){
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				if(game.isSoundOn()) close.play();
-				Gdx.app.exit();
 			}
 		});
 
@@ -291,8 +291,6 @@ public class GameScreen implements Screen {
 //		pauseTable.add(optionsButton);
 		pauseTable.row();
 		pauseTable.add(giveUpButton);
-		pauseTable.row();
-		pauseTable.add(quitButton);
 
 		optionTable.defaults().width(0.65f * w);
 		optionTable.defaults().height(0.10f * h);
@@ -321,6 +319,7 @@ public class GameScreen implements Screen {
 		needtoPop = false;
 		isGameMenu = true;
 		state = State.RUN;
+
 		//Initialising game objects
 		stockedObstacle = new LinkedList<Obstacle>();
 		usedObstacles = new LinkedList<Obstacle>();
@@ -340,6 +339,108 @@ public class GameScreen implements Screen {
 		stage.addActor(pauseButton);
 	}
 
+	private void updateLeaderboardTable() {
+		int hs1score = prefs.getInteger("hs1.score", 0);
+		int hs2score = prefs.getInteger("hs2.score", 0);
+		int hs3score = prefs.getInteger("hs3.score", 0);
+		int hs4score = prefs.getInteger("hs4.score", 0);
+		int hs5score = prefs.getInteger("hs5.score", 0);
+
+		String hs1name = prefs.getString("hs1.name", "User");
+		String hs2name = prefs.getString("hs2.name", "User");
+		String hs3name = prefs.getString("hs3.name", "User");
+		String hs4name = prefs.getString("hs4.name", "User");
+		String hs5name = prefs.getString("hs5.name", "User");
+
+		if (score > hs1score) {
+			prefs.putInteger("hs1.score", score);
+			prefs.putInteger("hs2.score", hs1score);
+			prefs.putInteger("hs3.score", hs2score);
+			prefs.putInteger("hs4.score", hs3score);
+			prefs.putInteger("hs5.score", hs4score);
+			prefs.putString("hs1.name", highscoreName);
+			prefs.putString("hs2.name", hs1name);
+			prefs.putString("hs3.name", hs2name);
+			prefs.putString("hs4.name", hs3name);
+			prefs.putString("hs5.name", hs4name);
+			prefs.flush();
+		}
+		else if (score > hs2score) {
+			prefs.putInteger("hs2.score", score);
+			prefs.putInteger("hs3.score", hs2score);
+			prefs.putInteger("hs4.score", hs3score);
+			prefs.putInteger("hs5.score", hs4score);
+			prefs.putString("hs2.name", highscoreName);
+			prefs.putString("hs3.name", hs2name);
+			prefs.putString("hs4.name", hs3name);
+			prefs.putString("hs5.name", hs4name);
+			prefs.flush();
+		}
+		else if (score > hs3score) {
+			prefs.putInteger("hs3.score", score);
+			prefs.putInteger("hs4.score", hs3score);
+			prefs.putInteger("hs5.score", hs4score);
+			prefs.putString("hs3.name", highscoreName);
+			prefs.putString("hs4.name", hs3name);
+			prefs.putString("hs5.name", hs4name);
+			prefs.flush();
+		}
+		else if (score > hs4score) {
+			prefs.putInteger("hs4.score", score);
+			prefs.putInteger("hs5.score", hs4score);
+			prefs.putString("hs4.name", highscoreName);
+			prefs.putString("hs5.name", hs4name);
+			prefs.flush();
+		}
+		else if (score > hs5score) {
+			prefs.putInteger("hs5.score", score);
+			prefs.putString("hs5.name", highscoreName);
+			prefs.flush();
+		}
+
+		hs1score = prefs.getInteger("hs1.score", 0);
+		hs2score = prefs.getInteger("hs2.score", 0);
+		hs3score = prefs.getInteger("hs3.score", 0);
+		hs4score = prefs.getInteger("hs4.score", 0);
+		hs5score = prefs.getInteger("hs5.score", 0);
+
+		hs1name = prefs.getString("hs1.name", "User");
+		hs2name = prefs.getString("hs2.name", "User");
+		hs3name = prefs.getString("hs3.name", "User");
+		hs4name = prefs.getString("hs4.name", "User");
+		hs5name = prefs.getString("hs5.name", "User");
+
+		menusScreen.highScores.setText("1. "+hs1name+" : "+hs1score+"\n"+
+									   "2. "+hs2name+" : "+hs2score+"\n"+
+									   "3. "+hs3name+" : "+hs3score+"\n"+
+									   "4. "+hs4name+" : "+hs4score+"\n"+
+									   "5. "+hs5name+" : "+hs5score);
+	}
+
+	private void updateHighScores() {
+		prefs = Gdx.app.getPreferences("chromafall.leaderboard");
+
+		if (score > prefs.getInteger("hs5.score", 0)) {
+			Gdx.input.getTextInput(new Input.TextInputListener() {
+				@Override
+				public void input(String text) {
+					if (text.length() > 7) {
+						highscoreName = text.substring(0,7);
+					} else {
+						highscoreName = text;
+					}
+					updateLeaderboardTable();
+				}
+
+				@Override
+				public void canceled() {
+					highscoreName = "User";
+					updateLeaderboardTable();
+				}
+			}, "New high score ! Enter a name\n(max. 7 characters)", "User", "Hint Value");
+		}
+	}
+
 	@Override
 	public void render(float delta) {
 		if(game.isMusicOn() && isGameMenu){
@@ -347,13 +448,30 @@ public class GameScreen implements Screen {
 			gameMusic.play();
 		}
 
-		gameView.apply();
 		// Hex color code: #1a1a1a
 		ScreenUtils.clear(.102f,.102f,.102f, 1);
 
 		batch.begin();
 		switch (state){
 			case PAUSE:
+				break;
+
+			case DEATH:
+				if(game.isMusicOn()) gameMusic.stop();
+				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
+				ball.draw(batch);
+				if (isOrbShown) {
+					orb.draw(batch);
+				}
+				for (Obstacle obs: usedObstacles) {
+					obs.draw(batch);
+				}
+				if (System.currentTimeMillis() - deathTime > 1500) {
+					updateHighScores();
+					batch.end();
+					game.setScreen(menusScreen);
+					return;
+				}
 				break;
 
 			case RUN:
@@ -371,7 +489,9 @@ public class GameScreen implements Screen {
 				//Checking the player picked up the orb
 				if (isOrbShown) {
 					orb.draw(batch);
-					orb.update(speed);
+					if (state == State.RUN) {
+						orb.update(speed);
+					}
 					if (Intersector.overlaps(ball.getHitbox(), orb.getHitbox())) {
 						ball.setColor(orb.getColor());
 						if(game.isSoundOn()) itemSound.play();
@@ -394,7 +514,6 @@ public class GameScreen implements Screen {
 
 				for (Obstacle obs: usedObstacles) {
 					obs.draw(batch);
-					obs.update(speed);
 
 					if(obs.getY() > h){
 						needtoPop = true;
@@ -402,51 +521,20 @@ public class GameScreen implements Screen {
 
 					if (ball.getColor() != obs.getColor() &&
 							Intersector.overlaps(ball.getHitbox(),obs.getHitbox())){
-						ball.draw(batch);
-						batch.end();
 						if(game.isSoundOn()) collisionSound.play();
 						if(game.isMusicOn()) gameMusic.stop();
 
-						prefs = Gdx.app.getPreferences("chromafall.leaderboard");
-						int hs1score = prefs.getInteger("hs1.score", 0);
-						int hs2score = prefs.getInteger("hs2.score", 0);
-						int hs3score = prefs.getInteger("hs3.score", 0);
-						int hs4score = prefs.getInteger("hs4.score", 0);
-						int hs5score = prefs.getInteger("hs5.score", 0);
-						if (score > hs1score) {
-							prefs.putInteger("hs1.score", score);
-							prefs.putInteger("hs2.score", hs1score);
-							prefs.putInteger("hs3.score", hs2score);
-							prefs.putInteger("hs4.score", hs3score);
-							prefs.putInteger("hs5.score", hs4score);
-							prefs.flush();
-						}
-						else if (score > hs2score) {
-							prefs.putInteger("hs2.score", score);
-							prefs.putInteger("hs3.score", hs2score);
-							prefs.putInteger("hs4.score", hs3score);
-							prefs.putInteger("hs5.score", hs4score);
-							prefs.flush();
-						}
-						else if (score > hs3score) {
-							prefs.putInteger("hs3.score", score);
-							prefs.putInteger("hs4.score", hs3score);
-							prefs.putInteger("hs5.score", hs4score);
-							prefs.flush();
-						}
-						else if (score > hs4score) {
-							prefs.putInteger("hs4.score", score);
-							prefs.putInteger("hs5.score", hs4score);
-							prefs.flush();
-						}
-						else if (score > hs5score) {
-							prefs.putInteger("hs5.score", score);
-							prefs.flush();
-						}
+						pauseButton.remove();
 
 						menusScreen.setScore(score);
-						game.setScreen(menusScreen);
-						return;
+
+						deathTime = System.currentTimeMillis();
+
+						state = State.DEATH;
+					}
+
+					if (state == State.RUN) {
+						obs.update(speed);
 					}
 				}
 
@@ -458,7 +546,9 @@ public class GameScreen implements Screen {
 				// ball must be drawn after the obstacles so that it can pass
 				// *over* them.
 				ball.draw(batch);
-				ball.update();
+				if (state == State.RUN) {
+					ball.update();
+				}
 
 				//Drawing the score
 				font.draw(batch,"Score : " + score,w/100f,h-font.getScaleY()-h/100f);
@@ -469,10 +559,10 @@ public class GameScreen implements Screen {
 					speed = MathUtils.log(2, incremencer)*2;
 					time = 0;
 				}
+				break;
 		}
 
 		batch.end();
-		stage.getViewport().apply();
 		stage.act();
 		stage.draw();
 	}
