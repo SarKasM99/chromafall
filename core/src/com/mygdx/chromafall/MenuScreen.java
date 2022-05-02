@@ -127,7 +127,7 @@ public class MenuScreen implements Screen {
         dialogBtnStyle.font = gen.generateFont(dialogParam);    // Generates the font with parameters param
         TextureRegion btnTexture = new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png")));
         btnTexture.setRegionWidth(w*3/10);
-        btnTexture.setRegionHeight(h/12);
+        btnTexture.setRegionHeight(h/15);
         dialogBtnStyle.up = new TextureRegionDrawable(btnTexture);    // Image of the button
 
         // Creates buttons for the main table
@@ -231,7 +231,9 @@ public class MenuScreen implements Screen {
                 Skin skin = new Skin(Gdx.files.internal("skin.json"));
                 Dialog dialog = new Dialog("", skin) {
                     public void result(Object object) {
+                        if (game.isSoundOn()) close.play();
                         if (object.equals(true)) {
+                            if (game.isSoundOn()) open.play();
                             Preferences prefs = Gdx.app.getPreferences("chromafall.leaderboard");
                             prefs.putInteger("hs1.score", 0);
                             prefs.putInteger("hs2.score", 0);
@@ -252,14 +254,23 @@ public class MenuScreen implements Screen {
                         }
                     }
                 };
-                Label dialogLabel = new Label("Are you sure you want to reset the scores ?", dialogStyle);
-                ImageTextButton yesDialogBtn = new ImageTextButton("Yes", dialogBtnStyle);
-                ImageTextButton noDialogBtn = new ImageTextButton("No", dialogBtnStyle);
+                Label dialogLabel = new Label("Are you sure you want\nto reset the scores ?", labelStyle);
+                dialogLabel.setAlignment(Align.center);
+                ImageTextButton yesDialogBtn = new ImageTextButton("Yes", buttonStyle);
+                ImageTextButton noDialogBtn = new ImageTextButton("No", buttonStyle);
+
+                Table buttonTable = dialog.getButtonTable();
+                buttonTable.defaults().width(0.35f * w);
+                buttonTable.defaults().height(0.05f * h);
+                buttonTable.defaults().pad(0.01f * h);    // Space between cells
+                buttonTable.defaults().align(Align.center);
+
                 dialog.text(dialogLabel);
                 dialog.button(yesDialogBtn, true);
                 dialog.button(noDialogBtn, false);
                 dialog.show(stage);
             }
+
         });
 
         // Adds listeners to buttons of the tuto table
@@ -487,6 +498,9 @@ public class MenuScreen implements Screen {
         tutoTable.add(okButton).padTop(0.52f * h);
 
         // Leaderboard labels
+        param.size = w/10;
+        param.borderColor = Color.OLIVE;
+        param.borderWidth = w/250;
         Label.LabelStyle highScoresStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
         Preferences prefs = Gdx.app.getPreferences("chromafall.leaderboard");
         int hs1score = prefs.getInteger("hs1.score", 0);
@@ -504,7 +518,7 @@ public class MenuScreen implements Screen {
                                     "3. "+hs3name+" : "+hs3score+"\n"+
                                     "4. "+hs4name+" : "+hs4score+"\n"+
                                     "5. "+hs5name+" : "+hs5score,
-                                    highScoresStyle);
+                                    labelStyle);
         Label leaderboard = new Label("Leaderboard", highScoresStyle);
         leaderboard.setAlignment(Align.center);
 
