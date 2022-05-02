@@ -108,7 +108,6 @@ public class MenuScreen implements Screen {
 
         // Label style
         final Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
-        final Label.LabelStyle dialogStyle = new Label.LabelStyle(gen.generateFont(dialogParam), Color.WHITE);
 
         // Game over
         FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
@@ -233,7 +232,6 @@ public class MenuScreen implements Screen {
                     public void result(Object object) {
                         if (game.isSoundOn()) close.play();
                         if (object.equals(true)) {
-                            if (game.isSoundOn()) open.play();
                             Preferences prefs = Gdx.app.getPreferences("chromafall.leaderboard");
                             prefs.putInteger("hs1.score", 0);
                             prefs.putInteger("hs2.score", 0);
