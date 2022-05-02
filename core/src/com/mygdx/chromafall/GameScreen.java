@@ -64,7 +64,7 @@ public class GameScreen implements Screen {
 	private int incremencer;
 	private boolean needtoPop;
 	private int score;
-	private final InvisiblePath invisPath;
+	private InvisiblePath invisPath;
 	public Preferences prefs;
 	private long deathTime;
 	public String highscoreName;
@@ -106,8 +106,6 @@ public class GameScreen implements Screen {
 		this.batch = new SpriteBatch();
 
 		stage = new Stage(gameView);
-
-		invisPath = new InvisiblePath(1);
 
 		//Sounds and music
 		open = Gdx.audio.newSound(Gdx.files.internal("Sounds/open.wav"));
@@ -319,6 +317,9 @@ public class GameScreen implements Screen {
 		needtoPop = false;
 		isGameMenu = true;
 		state = State.RUN;
+
+		// New invisible path
+		invisPath = new InvisiblePath(1);
 
 		//Initialising game objects
 		stockedObstacle = new LinkedList<Obstacle>();
