@@ -258,7 +258,6 @@ public class MenuScreen implements Screen {
                 dialog.text(dialogLabel);
                 dialog.button(yesDialogBtn, true);
                 dialog.button(noDialogBtn, false);
-                dialog.getButtonTable().pad(h/10);
                 dialog.show(stage);
             }
         });
