@@ -12,9 +12,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -100,9 +102,13 @@ public class MenuScreen implements Screen {
         FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();    // Parameters of the font
         param.size = w/14;
         param.color = Color.WHITE;
+        FreeTypeFontGenerator.FreeTypeFontParameter dialogParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        dialogParam.size = w/25;
+        dialogParam.color = Color.WHITE;
 
         // Label style
-        Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
+        final Label.LabelStyle labelStyle = new Label.LabelStyle(gen.generateFont(param), Color.WHITE);
+        final Label.LabelStyle dialogStyle = new Label.LabelStyle(gen.generateFont(dialogParam), Color.WHITE);
 
         // Game over
         FreeTypeFontGenerator fontGen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/myFont.ttf"));
@@ -113,9 +119,16 @@ public class MenuScreen implements Screen {
         fontParams.borderWidth = w/125;
 
         // Button case
-        ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button
+        final ImageTextButton.ImageTextButtonStyle buttonStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button
         buttonStyle.font = gen.generateFont(param);    // Generates the font with parameters param
-        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png"))));    // Image of the button
+        buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png"))));
+
+        final ImageTextButton.ImageTextButtonStyle dialogBtnStyle = new ImageTextButton.ImageTextButtonStyle();    // Parameters (style) of the button
+        dialogBtnStyle.font = gen.generateFont(dialogParam);    // Generates the font with parameters param
+        TextureRegion btnTexture = new TextureRegion(new Texture(Gdx.files.internal("EmptyButton.png")));
+        btnTexture.setRegionWidth(w*3/10);
+        btnTexture.setRegionHeight(h/12);
+        dialogBtnStyle.up = new TextureRegionDrawable(btnTexture);    // Image of the button
 
         // Creates buttons for the main table
         ImageTextButton playButton = new ImageTextButton("Play",buttonStyle);
@@ -215,23 +228,38 @@ public class MenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (game.isSoundOn()) open.play();
-                Preferences prefs = Gdx.app.getPreferences("chromafall.leaderboard");
-                prefs.putInteger("hs1.score", 0);
-                prefs.putInteger("hs2.score", 0);
-                prefs.putInteger("hs3.score", 0);
-                prefs.putInteger("hs4.score", 0);
-                prefs.putInteger("hs5.score", 0);
-                prefs.putString("hs1.name", "User");
-                prefs.putString("hs2.name", "User");
-                prefs.putString("hs3.name", "User");
-                prefs.putString("hs4.name", "User");
-                prefs.putString("hs5.name", "User");
-                prefs.flush();
-                highScores.setText("1. "+"User"+" : "+0+"\n"+
-                                   "2. "+"User"+" : "+0+"\n"+
-                                   "3. "+"User"+" : "+0+"\n"+
-                                   "4. "+"User"+" : "+0+"\n"+
-                                   "5. "+"User"+" : "+0);
+                Skin skin = new Skin(Gdx.files.internal("skin.json"));
+                Dialog dialog = new Dialog("", skin) {
+                    public void result(Object object) {
+                        if (object.equals(true)) {
+                            Preferences prefs = Gdx.app.getPreferences("chromafall.leaderboard");
+                            prefs.putInteger("hs1.score", 0);
+                            prefs.putInteger("hs2.score", 0);
+                            prefs.putInteger("hs3.score", 0);
+                            prefs.putInteger("hs4.score", 0);
+                            prefs.putInteger("hs5.score", 0);
+                            prefs.putString("hs1.name", "User");
+                            prefs.putString("hs2.name", "User");
+                            prefs.putString("hs3.name", "User");
+                            prefs.putString("hs4.name", "User");
+                            prefs.putString("hs5.name", "User");
+                            prefs.flush();
+                            highScores.setText("1. " + "User" + " : " + 0 + "\n" +
+                                    "2. " + "User" + " : " + 0 + "\n" +
+                                    "3. " + "User" + " : " + 0 + "\n" +
+                                    "4. " + "User" + " : " + 0 + "\n" +
+                                    "5. " + "User" + " : " + 0);
+                        }
+                    }
+                };
+                Label dialogLabel = new Label("Are you sure you want to reset the scores ?", dialogStyle);
+                ImageTextButton yesDialogBtn = new ImageTextButton("Yes", dialogBtnStyle);
+                ImageTextButton noDialogBtn = new ImageTextButton("No", dialogBtnStyle);
+                dialog.text(dialogLabel);
+                dialog.button(yesDialogBtn, true);
+                dialog.button(noDialogBtn, false);
+                dialog.getButtonTable().pad(h/10);
+                dialog.show(stage);
             }
         });
 
