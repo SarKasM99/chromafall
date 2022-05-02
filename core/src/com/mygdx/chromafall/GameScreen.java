@@ -435,8 +435,7 @@ public class GameScreen implements Screen {
 
 				@Override
 				public void canceled() {
-					highscoreName = "User";
-					updateLeaderboardTable();
+					
 				}
 			}, "New high score ! Enter a name\n(max. 7 characters)", "User", "Hint Value");
 		}
